@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = \App\Models\User::all();
+        $users = \App\Models\User::paginate(3);
         $roles = \App\Models\Role::all();
         return view('admin.manage-users', compact('users', 'roles'));
     }

@@ -26,8 +26,8 @@
 
             <div class="row">
                 @foreach($users as $user)
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm position-relative border-0" style="background: linear-gradient(135deg, #f8fafc 60%, #e3e6ed 100%); box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+                <div class="col-12 col-md-6 col-lg-4 mb-4 ">
+                    <div class="card h-75 py-5 shadow-sm position-relative border-0" style="background: linear-gradient(135deg, #f8fafc 60%, #e3e6ed 100%); box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
                         <!-- Action Dropdown Button -->
                         <div class="position-absolute top-0 end-0 m-2">
                             <div class="dropdown">
@@ -61,7 +61,7 @@
                                             <h5 class="fw-bold text-primary mb-2">{{ $user->name }}</h5>
                                             <p class="mb-1"><span class="fw-semibold">Email:</span> {{ $user->email }}</p>
                                             <p class="mb-1">
-                                                <span class="fw-semibold">Role:</span>
+                                                <span class="fw-semibold ">Role:</span>
                                                 @php
                                                     $roleColors = [
                                                         'Admin' => 'bg-primary ',
@@ -161,10 +161,10 @@
                                     </div>
                                 </div>
                                 <div class="col-8">
-                                    <h5 class="card-title mb-2 fw-bold text-primary">{{ Str::limit($user->name, 10, '...') }}</h5>
-                                    <p class="mb-1"><span class="fw-semibold text-dark">Email:</span> <span class="text-muted">{{ Str::limit($user->email, 15, '...') }}</span></p>
-                                    <p class="mb-1">
-                                        <span class="fw-semibold text-dark">Role:</span>
+                                    <h5 class="card-title mb-2 fw-bold text-primary ">{{ Str::limit($user->name, 10, '...') }}</h5>
+                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">Email:</span> <span class="text-muted fs-6">{{ Str::limit($user->email, 15, '...') }}</span></p>
+                                    <p class="mb-0">
+                                        <span class="fw-semibold text-dark fs-6">Role:</span>
                                         @php
                                             $roleColors = [
                                                 'Admin' => 'bg-primary',
@@ -178,8 +178,8 @@
                                         @endphp
                                         <span class="badge {{ $badgeClass }}">{{ $roleName }}</span>
                                     </p>
-                                    <p class="mb-1"><span class="fw-semibold text-dark">Contact:</span> <span class="text-muted fs-6">{{ Str::limit($user->contact_number, 15, '...') }}</span></p>
-                                    <p class="mb-0"><span class="fw-semibold text-dark">CNIC:</span> <span class="text-muted fs-6">{{ Str::limit($user->cnic, 10, '...') }}</span></p>
+                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">Contact:</span> <span class="text-muted fs-6">{{ Str::limit($user->contact_number, 15, '...') }}</span></p>
+                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">CNIC:</span> <span class="text-muted fs-6">{{ Str::limit($user->cnic, 10, '...') }}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -245,6 +245,9 @@
                 @endforeach
             </div>
 
+            <div class="d-flex justify-content-center">
+                {{ $users->links() }}
+            </div>
 
             <!-- Add User Modal -->
             <div class="modal fade" id="addUserModal" tabindex="-1">

@@ -12,6 +12,15 @@
 @section('content')
 <div class="container">
     <div class="page-inner">
+               @if ($errors->any())
+    <div class="alert alert-danger mt-2">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
        <div class="row">
         <div class="col-md-3">
             <div class="card card-stats card-round">
