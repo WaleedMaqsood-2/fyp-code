@@ -21,6 +21,8 @@ Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashb
 Route::resource('users', UserController::class);
 
 Route::get('manage-users', [UserController::class, 'index'])->name('manage.users');
+// AJAX user search for admin
+Route::get('/admin/user-search', [UserController::class, 'ajaxUserSearch'])->name('admin.user.search');
 Route::get('manage-media', function () {
     return view('admin.manage-media');
 })->name('manage.media');

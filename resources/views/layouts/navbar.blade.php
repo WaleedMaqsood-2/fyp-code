@@ -23,31 +23,23 @@
     <!-- Navbar Header -->
     <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
       <div class="container-fluid">
+        <!-- Admin User Search Bar -->
         <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
-          <div class="input-group">
+          <div class="input-group ms-4">
+            <input type="text" id="main-search" placeholder="@yield('search_placeholder', 'Search...')" class="form-control" autocomplete="off" />
             <div class="input-group-prepend">
-              <button type="submit" class="btn btn-search pe-1">
+              <button type="button" class="btn btn-search pe-1" id="search-btn">
                 <i class="fa fa-search search-icon"></i>
               </button>
             </div>
-            <input type="text" placeholder="Search ..." class="form-control" />
+            <div id="search-suggestions" class="mt-5 dropdown-menu" style="display:none; position:absolute; z-index:1000; width:100%"></div>
           </div>
         </nav>
+      
 
         <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-          <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"
-              aria-haspopup="true">
-              <i class="fa fa-search"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-search animated fadeIn">
-              <form class="navbar-left navbar-form nav-search">
-                <div class="input-group">
-                  <input type="text" placeholder="Search ..." class="form-control" />
-                </div>
-              </form>
-            </ul>
-          </li>
+
+        
           <li class="nav-item topbar-icon dropdown hidden-caret">
             <a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button" data-bs-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
@@ -281,3 +273,124 @@
       </div>
     </div>
   </div>
+
+
+    <!-- User Search Modal -->
+        <div class="modal fade" id="userSearchModal" tabindex="-1" aria-labelledby="userSearchModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="searchModalLabel">@yield('search_modal_title', 'Search Results')</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" id="search-results">
+                <!-- Results will be injected here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('main-search');
+  const suggestionsBox = document.getElementById('search-suggestions');
+  const searchBtn = document.getElementById('search-btn');
+  const modal = new bootstrap.Modal(document.getElementById('userSearchModal'));
+  const resultsBox = document.getElementById('search-results');
+  const searchConfig = window.searchConfig || {
+    endpoint: '/admin/user-search',
+    suggestionKey: 'users',
+    resultKey: 'users',
+  };
+  let timeout = null;
+
+  // Ensure parent is relative for dropdown positioning
+  searchInput.parentElement.style.position = 'relative';
+  suggestionsBox.style.zIndex = '1050';
+
+  searchInput.addEventListener('input', function() {
+    clearTimeout(timeout);
+    const query = this.value.trim();
+    if (query.length < 1  ) {
+      suggestionsBox.style.display = 'none';
+      return;
+    }
+    timeout = setTimeout(function() {
+      fetch(`${searchConfig.endpoint}?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+   const items = data.users || data;  
+console.log("Suggestions Data:", items);
+
+          if (items.length > 0) {
+     suggestionsBox.innerHTML = items.map(item => `
+  <button class="dropdown-item w-100 text-start" type="button" data-id="${item.id}">
+    <div class="fw-bold">${item.name || item.title}</div>
+    <small class="text-muted">${item.email || ''}</small>
+  </button>
+`).join('');
+
+            suggestionsBox.style.display = 'block';
+          } else {
+            suggestionsBox.innerHTML = '<span class="dropdown-item">No results found</span>';
+            suggestionsBox.style.display = 'block';
+          }
+        });
+    }, 300);
+  });
+
+  // Hide suggestions on blur or click outside
+  document.addEventListener('click', function(e) {
+    if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
+      suggestionsBox.style.display = 'none';
+    }
+  });
+
+ suggestionsBox.addEventListener('click', function(e) {
+  const target = e.target.closest('.dropdown-item'); // parent pakdo
+  if (!target) return;
+  
+  const itemId = target.getAttribute('data-id');
+  console.log("Clicked ID:", itemId); // debug
+  
+  fetch(`${searchConfig.endpoint}?id=${itemId}`)
+    .then(res => res.text())
+    .then(html => {
+      resultsBox.innerHTML = html;
+      modal.show();
+    })
+    .catch(err => console.error("Fetch Error:", err));
+  
+  suggestionsBox.classList.remove("show");
+});
+
+
+  searchBtn.addEventListener('click', function() {
+    const query = searchInput.value.trim();
+    if (query.length < 1) return;
+    fetch(`${searchConfig.endpoint}?q=${encodeURIComponent(query)}`)
+      .then(res => res.text())
+      .then(html => {
+        resultsBox.innerHTML = html;
+        modal.show();
+      });
+    suggestionsBox.style.display = 'none';
+  });
+
+  // Trigger search on Enter key
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const query = searchInput.value.trim();
+      if (query.length < 2) return;
+      fetch(`${searchConfig.endpoint}?q=${encodeURIComponent(query)}`)
+        .then(res => res.text())
+        .then(html => {
+          resultsBox.innerHTML = html;
+          modal.show();
+        });
+      suggestionsBox.style.display = 'none';
+    }
+  });
+});
+</script>

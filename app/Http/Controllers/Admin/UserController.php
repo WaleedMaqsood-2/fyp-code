@@ -9,6 +9,33 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    // AJAX user search for admin
+
+public function ajaxUserSearch(Request $request)
+{  
+    if ($request->has('id')) {
+        $user = User::with('role')->find($request->id);
+        return view('admin.partials.user-details', compact('user'));
+    }
+
+    $query = $request->get('q');
+    $users = User::with('role')
+        ->where('name', 'like', "%{$query}%")
+        ->orWhere('email', 'like', "%{$query}%")
+        ->limit(10)
+        ->get(['id','name','email','role_id']);
+
+    // If this is an AJAX request for suggestions, return JSON
+    if ($request->ajax()) {
+        return response()->json(['users' => $users]);
+    }
+
+    // Otherwise, return HTML for modal (search results)
+    return view('admin.partials.user-search-results', compact('users'))->render();
+}
+
+
+   
     public function index()
     {
         $users = \App\Models\User::paginate(3);
