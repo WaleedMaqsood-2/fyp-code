@@ -8,7 +8,22 @@ class Media extends Model
 {
 	// Specify the correct table name
 	protected $table = 'media_uploads';
-
+ public function users()
+	{
+		return $this->belongsTo(User::class, 'user_id');
+	}
+	public function complaint()
+{
+    return $this->belongsTo(Complaint::class);
+}
+protected $fillable = [
+		'user_id',
+		'file_path',
+		'file_type',
+		'file_size',
+		'description',
+		'complaint_id'
+	];
 	/**
 	 * Get the count of media files in the media_uploads table.
 	 * @return int

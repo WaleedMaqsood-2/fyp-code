@@ -24,7 +24,7 @@
     <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
       <div class="container-fluid">
         <!-- Admin User Search Bar -->
-        <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+        {{-- <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex ">
           <div class="input-group ms-4">
             <input type="text" id="main-search" placeholder="@yield('search_placeholder', 'Search...')" class="form-control" autocomplete="off" />
             <div class="input-group-prepend">
@@ -34,8 +34,47 @@
             </div>
             <div id="search-suggestions" class="mt-5 dropdown-menu" style="display:none; position:absolute; z-index:1000; width:100%"></div>
           </div>
-        </nav>
-      
+        </nav> --}}
+
+
+        {{-- <form id="globalSearchForm" 
+      action="{{ $searchAction ?? '#' }}" 
+      method="GET" 
+      class="d-flex position-relative">
+
+    <input class="form-control me-2" 
+           type="search" 
+           placeholder="{{ $searchPlaceholder ?? 'Search...' }}" 
+           name="q" 
+           id="globalSearchInput" 
+           autocomplete="off">
+
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form> --}}
+
+<!-- Suggestions list -->
+{{-- <ul id="suggestions" class="list-group position-absolute w-100" style="z-index: 1000;"></ul> --}}
+        <!-- End Admin User Search Bar -->
+
+
+<nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex ">
+          <div class="input-group ms-4">
+       
+  <input type="text" id="main-search" 
+         placeholder="{{ $searchPlaceholder ?? 'Search...' }}" 
+         class="form-control" autocomplete="off" />
+ <div class="input-group-prepend">
+              <button type="button" class="btn btn-search pe-1" id="search-btn">
+                <i class="fa fa-search search-icon"></i>
+              </button>
+            </div>
+
+  <div id="search-suggestions" 
+     class="dropdown-menu" 
+     style="display:none; position:absolute; top:100%; left:0; width:100%;">
+</div>
+
+</nav>
 
         <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
 
@@ -290,107 +329,4 @@
           </div>
         </div>
 
-        <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const searchInput = document.getElementById('main-search');
-  const suggestionsBox = document.getElementById('search-suggestions');
-  const searchBtn = document.getElementById('search-btn');
-  const modal = new bootstrap.Modal(document.getElementById('userSearchModal'));
-  const resultsBox = document.getElementById('search-results');
-  const searchConfig = window.searchConfig || {
-    endpoint: '/admin/user-search',
-    suggestionKey: 'users',
-    resultKey: 'users',
-  };
-  let timeout = null;
-
-  // Ensure parent is relative for dropdown positioning
-  searchInput.parentElement.style.position = 'relative';
-  suggestionsBox.style.zIndex = '1050';
-
-  searchInput.addEventListener('input', function() {
-    clearTimeout(timeout);
-    const query = this.value.trim();
-    if (query.length < 1  ) {
-      suggestionsBox.style.display = 'none';
-      return;
-    }
-    timeout = setTimeout(function() {
-      fetch(`${searchConfig.endpoint}?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-   const items = data.users || data;  
-console.log("Suggestions Data:", items);
-
-          if (items.length > 0) {
-     suggestionsBox.innerHTML = items.map(item => `
-  <button class="dropdown-item w-100 text-start" type="button" data-id="${item.id}">
-    <div class="fw-bold">${item.name || item.title}</div>
-    <small class="text-muted">${item.email || ''}</small>
-  </button>
-`).join('');
-
-            suggestionsBox.style.display = 'block';
-          } else {
-            suggestionsBox.innerHTML = '<span class="dropdown-item">No results found</span>';
-            suggestionsBox.style.display = 'block';
-          }
-        });
-    }, 300);
-  });
-
-  // Hide suggestions on blur or click outside
-  document.addEventListener('click', function(e) {
-    if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
-      suggestionsBox.style.display = 'none';
-    }
-  });
-
- suggestionsBox.addEventListener('click', function(e) {
-  const target = e.target.closest('.dropdown-item'); // parent pakdo
-  if (!target) return;
-  
-  const itemId = target.getAttribute('data-id');
-  console.log("Clicked ID:", itemId); // debug
-  
-  fetch(`${searchConfig.endpoint}?id=${itemId}`)
-    .then(res => res.text())
-    .then(html => {
-      resultsBox.innerHTML = html;
-      modal.show();
-    })
-    .catch(err => console.error("Fetch Error:", err));
-  
-  suggestionsBox.classList.remove("show");
-});
-
-
-  searchBtn.addEventListener('click', function() {
-    const query = searchInput.value.trim();
-    if (query.length < 1) return;
-    fetch(`${searchConfig.endpoint}?q=${encodeURIComponent(query)}`)
-      .then(res => res.text())
-      .then(html => {
-        resultsBox.innerHTML = html;
-        modal.show();
-      });
-    suggestionsBox.style.display = 'none';
-  });
-
-  // Trigger search on Enter key
-  searchInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const query = searchInput.value.trim();
-      if (query.length < 2) return;
-      fetch(`${searchConfig.endpoint}?q=${encodeURIComponent(query)}`)
-        .then(res => res.text())
-        .then(html => {
-          resultsBox.innerHTML = html;
-          modal.show();
-        });
-      suggestionsBox.style.display = 'none';
-    }
-  });
-});
-</script>
+       

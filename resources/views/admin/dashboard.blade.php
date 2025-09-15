@@ -8,19 +8,22 @@
         exit;
     }
 @endphp
-
+@can('admin')
 @section('content')
 <div class="container">
     <div class="page-inner">
-               @if ($errors->any())
-    <div class="alert alert-danger mt-2">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            {{ $errors->first() }}
+        </div>
     @endif
+    @if (session('success'))
+    <div class="alert alert-success mt-2">
+        {{ session('success') }}
+    </div>
+@endif
+
+    
        <div class="row">
         <div class="col-md-3">
             <div class="card card-stats card-round">
@@ -168,7 +171,7 @@
 </div>{{-- container --}}
 
 @endsection
-
+@endcan
 @section('scripts')
 <script>
     // Users chart
@@ -199,3 +202,10 @@
     });
 </script>
 @endsection
+
+
+
+@php
+  $searchAction = route('admin.user.search'); 
+  $searchPlaceholder = 'Search Dashboard...';
+@endphp

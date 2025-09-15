@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   @include('layouts.head')
+  @stack('styles' )
 </head>
 <body>
 
@@ -9,11 +10,11 @@
 
       @include('layouts.navbar')
 
-        @yield('content')
-    
-    
-        @include('layouts.scripts')
-      @include('layouts.footer')
+@yield('content')
+
+
+@include('layouts.footer')
+@include('layouts.scripts')
 @yield('scripts')
 
 </body>

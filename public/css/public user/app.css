@@ -1,0 +1,47 @@
+    :root {
+      --primary-color: #1173d4;
+      --secondary-color: #e7edf3;
+      --text-primary: #0d141b;
+      --text-secondary: #4c739a;
+    }
+    body {
+      font-family: "Public Sans", "Noto Sans", sans-serif;
+      background-color: #f9fafb;
+      color: var(--text-primary);
+    }
+    .nav-link { font-size: 1rem; font-weight: 500; color: #6b7280; }
+    .nav-link:hover { color: var(--primary-color); }
+
+     /* Search Input */
+    .search-input {
+      padding-left: 2.2rem;
+      background-color: #f1f5f9;
+      border-radius: 50rem;
+      border: 1px solid #d1d5db;
+      transition: all 0.3s;
+    }
+    .search-input:focus {
+      background-color: #fff;
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(17, 115, 212, 0.25);
+    }
+
+
+    .profile-img {
+    width: 40px;   /* chhoti size */
+    height: 40px;  /* square */
+    object-fit: cover; /* image crop hogi aur frame me fit ayegi */
+    border-radius: 50%; /* gol frame */
+}
+
+     /* Footer */
+    footer {
+      background-color: #f3f4f6;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+    footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }

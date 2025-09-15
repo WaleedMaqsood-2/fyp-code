@@ -1,0 +1,21 @@
+
+    .upload-box {
+      border: 2px dashed #d1d5db;
+      padding: 2rem;
+      text-align: center;
+      border-radius: 0.5rem;
+    }
+    .upload-box:hover {
+      background-color: #f9fafb;
+    }
+    .btn-primary-custom {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    .btn-primary-custom:hover {
+      background-color: #0f5fb0;
+    }
+    .material-symbols-outlined {
+      vertical-align: middle;
+    }
+ 

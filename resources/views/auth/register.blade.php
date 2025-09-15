@@ -13,6 +13,16 @@
 
 <div class="container mt-5">
     <div class="row justify-content-center mt-5">
+          @if ($errors->any())
+        <div class="alert alert-danger">
+            {{ $errors->first() }}
+        </div>
+    @endif
+    @if (session('success'))
+    <div class="alert alert-success mt-2">
+        {{ session('success') }}
+    </div>
+@endif
         <div class="col-md-6 mt-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">Register</div>

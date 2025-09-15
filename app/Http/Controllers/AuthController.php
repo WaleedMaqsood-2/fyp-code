@@ -33,7 +33,10 @@ class AuthController extends Controller
             Auth::login($user);
             if ($user->role_id == 1) {
                 return redirect()->route('dashboard')->with('success', 'Welcome '.$user->name);
-            } else {
+            } else if ($user->role_id == 4) {
+                return redirect()->route('public.dashboard')->with('success', 'Welcome '.$user->name);
+            }
+            else {
                 return redirect()->route('register')->with('success', 'Welcome '.$user->name);
             }
         }

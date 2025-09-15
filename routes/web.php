@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Models\User;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
+use App\Http\Controllers\ComplaintController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,7 +24,7 @@ Route::resource('users', UserController::class);
 
 Route::get('manage-users', [UserController::class, 'index'])->name('manage.users');
 // AJAX user search for admin
-Route::get('/admin/user-search', [UserController::class, 'ajaxUserSearch'])->name('admin.user.search');
+// Route::get('/admin/user-search', [UserController::class, 'ajaxUserSearch'])->name('admin.user.search');
 Route::get('manage-media', function () {
     return view('admin.manage-media');
 })->name('manage.media');
@@ -37,6 +39,47 @@ Route::get('analytics', function () {
     return view('admin.analytics');
 })->name('analytics');
 
+
+
+// Users
+Route::get('/admin/user-search', [UserController::class, 'ajaxUserSearch'])->name('admin.user.search');
+
+
+Route::get('/admin/user-list', [UserController::class, 'ajaxUserList'])->name('admin.user.list');
+
+// Media
+Route::get('/admin/media-search', [UserController::class, 'ajaxMediaSearch'])->name('admin.media.search');
+
+// AI
+Route::get('/admin/ai-search', [UserController::class, 'ajaxAISearch'])->name('admin.ai.search');
+
+// Analytics
+Route::get('/admin/analytics-search', [UserController::class, 'ajaxAnalyticsSearch'])->name('admin.analytics.search');
+
+//complaints
+Route::get('/admin/complaints/ajax-search', [AdminComplaintController::class, 'ajaxSearch'])->name('admin.complaints.ajaxSearch');
+
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    // List all complaints with filters
+    Route::get('complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
+
+    // View a single complaint
+    Route::get('complaints/{id}', [AdminComplaintController::class, 'show'])->name('complaints.show');
+
+    // Assign complaint to an officer
+    Route::post('complaints/{id}/assign', [AdminComplaintController::class, 'assign'])->name('complaints.assign');
+
+    // Change complaint status
+    Route::post('complaints/{id}/change-status', [AdminComplaintController::class, 'changeStatus'])->name('complaints.changeStatus');
+
+    // Delete complaint
+    Route::delete('/complaints/{id}', [AdminComplaintController::class, 'destroy'])->name('complaints.destroy');
+    // ✅ Update complaint (status, officer, notes)
+    Route::put('complaints/{id}', [AdminComplaintController::class, 'update'])->name('complaints.update');
+});
 
 
 
@@ -58,4 +101,35 @@ Route::middleware('auth')->group(function () {
 });
  
   Route::post('change-role/{user}', [AuthController::class, 'updateRole'])->name('users.updateRole');
+
+
+
+
+
+
+
+  //Public User Routes
+  Route::get('/Public/welcome', function () {
+    return view('Public User.welcome');
+  })->name('public.welcome');
+    Route::get('/Public/dashboard', function () {
+        return view('Public User.dashboard');
+    })->name('public.dashboard');
+  Route::get('/Public/complaints-form', function () {
+    return view('Public User.complaints-form');
+})->name('public.complaints.form');
+    Route::get('/Public/complaints-track', function () {
+        return view('Public User.complaints-track');
+    })->name('public.complaints.track');
+    Route::get('/Public/public-alerts', function () {
+        return view('Public User.public-alerts');
+    })->name('public.alerts');
+    Route::get('/Public/profile-update', function () {
+        return view('Public User.profile-update');
+    })->name('public.profile.update');
+
+
+
+    Route::post('/complaints/store', [ComplaintController::class, 'store'])->name('complaints.store');
+
 

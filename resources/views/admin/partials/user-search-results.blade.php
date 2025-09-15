@@ -22,3 +22,21 @@
 @else
   <div class="p-3">No users found.</div>
 @endif
+
+{{-- <div class="row">
+    @forelse($users as $user)
+        <div class="col-12 col-md-6 col-lg-4 mb-4">
+            <div class="card h-75 py-5 shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-bold">{{ $user->name }}</h5>
+                    <p class="mb-0">{{ $user->email }}</p>
+                    <span class="badge bg-primary">{{ $user->role->role_name ?? 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
+    @empty
+        <div class="col-12">
+            <p>No users found.</p>
+        </div>
+    @endforelse
+</div> --}}

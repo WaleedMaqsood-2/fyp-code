@@ -42,6 +42,12 @@
                   <p>Manage Media</p>
                 </a>
               </li>
+              <li class="nav-item {{ Route::currentRouteName() == 'admin.complaints.index' ? 'active' : '' }}">
+                <a href="{{ route('admin.complaints.index') }}">
+                  <i class="fas fa-exclamation-circle"></i>
+                  <p>Manage Complaints</p>
+                </a>
+              </li>
               <li class="nav-item {{ Route::currentRouteName() == 'ai.usage' ? 'active' : '' }}">
                 <a href="{{ route('ai.usage') }}">
                   <i class="fas fa-robot"></i>

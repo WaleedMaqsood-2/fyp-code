@@ -14,9 +14,19 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     // Define the relationship
- public function role()
+// App\Models\User.php
+public function role()
 {
-    return $this->belongsTo(\App\Models\Role::class);
+    return $this->belongsTo(Role::class, 'role_id');
+}
+
+public function media()
+{
+    return $this->hasMany(\App\Models\Media::class, 'user_id');
+}
+public function aiFeedbacks()
+{
+    return $this->hasMany(\App\Models\AIFeedback::class, 'user_id');
 }
 protected $fillable = [
     'name',
