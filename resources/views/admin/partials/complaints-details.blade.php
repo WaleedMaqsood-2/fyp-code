@@ -1,164 +1,206 @@
 @extends('layouts.master')
+
 @push('styles')
 <link href="{{ asset('css/admin/complaint-details.css') }}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 @endpush
+
 @section('content')
-<div class="container">
+<div class="container py-4">
 <div class="ms-2 mt-4">
 
-<div class="page-container">
 
-    <!-- Back + heading -->
+    <!-- Back + Heading -->
     <div class="mb-4">
-        <a href="{{ route('admin.complaints.index') }}" class="back-link d-inline-flex align-items-center">
-            <span class="material-symbols-outlined me-2">arrow_back</span>
-            <small class="muted">Back to Complaints</small>
+        <a href="{{ route('admin.complaints.index') }}" class="d-inline-flex align-items-center text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i>
+            <span class="text-muted">Back to Complaints</span>
         </a>
     </div>
 
-    <div class="d-flex justify-content-between align-items-start mb-4">
-        <div>
-            <div class="title">Complaint Details: <span class="text-muted" style="font-weight:600">#{{ $complaint->id }}</span></div>
-            <div class="muted mt-1">Submitted by <strong>{{ $complaint->user?->name ?? 'N/A' }}</strong> on <span class="muted">{{ $complaint->created_at->format('Y-m-d') }}</span></div>
-        </div>
-        <div>
-            <span class="badge-status 
-                @switch($complaint->status)
-                    @case('received') bg-warning text-dark @break
-                    @case('under_review') bg-primary text-white @break
-                    @case('resolved') bg-success text-white @break
-                    @default bg-secondary text-white
-                @endswitch">
-                {{ ucfirst(str_replace('_',' ',$complaint->status)) }}
-            </span>
-        </div>
-    </div>
-
     <div class="row g-4">
-        <!-- Left (Main) -->
-        <div class="col-lg-8">
-            <div class="card-panel mb-4">
-                <h5 class="mb-3" style="font-weight:700">Complaint Information</h5>
-                <div class="row g-3 text-sm">
-                    <div class="col-md-6">
-                        <p class="muted mb-1" style="font-weight:600; font-size:.9rem">Complainant Name</p>
-                        <p class="mb-0">{{ $complaint->user?->name ?? 'N/A' }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="muted mb-1" style="font-weight:600; font-size:.9rem">Email</p>
-                        <p class="mb-0">{{ $complaint->user?->email ?? '-' }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="muted mb-1" style="font-weight:600; font-size:.9rem">Date of Incident</p>
-                        <p class="mb-0">{{ $complaint->created_at->format('Y-m-d') }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="muted mb-1" style="font-weight:600; font-size:.9rem">Location</p>
-                        <p class="mb-0">{{ $complaint->location ?? '-' }}</p>
-                    </div>
-                    <div class="col-12 mt-2">
-                        <p class="muted mb-1" style="font-weight:600; font-size:.9rem">Description</p>
-                        <p class="mb-0">{{ $complaint->description }}</p>
+        <!-- Left Column -->
+        <div class="col-12 col-lg-8">
+            <!-- Complaint Header -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4">
+                <div>
+                    <h5 class="fw-bold mb-1">
+                        Complaint Details: <span class="text-muted fw-semibold">#{{ $complaint->id }}</span>
+                    </h5>
+                    <small class="text-muted">
+                        Submitted by <strong>{{ $complaint->user?->name ?? 'N/A' }}</strong> 
+                        on {{ $complaint->created_at->format('Y-m-d') }}
+                    </small>
+                </div>
+                <div class="mt-2 mt-md-0">
+                    <span class="badge 
+                        @switch($complaint->status)
+                            @case('received') bg-warning text-dark @break
+                            @case('under_review') bg-primary @break
+                            @case('resolved') bg-success @break
+                            @default bg-secondary
+                        @endswitch">
+                        {{ ucfirst(str_replace('_',' ',$complaint->status)) }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Complaint Info -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Complaint Information</h6>
+                    <div class="row g-3 small">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1 fw-semibold">Complainant Name</p>
+                            <p class="mb-0">{{ $complaint->user?->name ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                        <p class="text-muted mb-1 fw-semibold">Track Id</p>
+                        <p class="mb-0">{{ $complaint->track_id ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1 fw-semibold">Email</p>
+                            <p class="mb-0">{{ $complaint->user?->email ?? '-' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1 fw-semibold">Date of Incident</p>
+                            <p class="mb-0">{{ $complaint->created_at->format('Y-m-d') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1 fw-semibold">Location</p>
+                            <p class="mb-0">{{ $complaint->location ?? '-' }}</p>
+                        </div>
+                        <div class="col-12">
+                            <p class="text-muted mb-1 fw-semibold">Description</p>
+                            <p class="mb-0">{{ $complaint->description }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Evidence -->
-           <!-- Attached Evidence -->
-<div class="card-panel mb-4">
-    <h5 class="mb-3" style="font-weight:700">Attached Evidence</h5>
-    <div class="row g-3">x  
-        @forelse($complaint->media as $media)
-            <div class="col-6 col-md-3 evidence-item">
-                <a href="{{ asset('storage/'.$media->file_path) }}" target="_blank" class="d-block text-decoration-none">
-                    <div class="evidence-thumb d-flex align-items-center justify-content-center">
-                        @php
-                            $ext = strtolower(pathinfo($media->file_path, PATHINFO_EXTENSION));
-                        @endphp
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Attached Evidence</h6>
+                    <div class="row g-3">
+                        @forelse($complaint->media as $media)
+                            <div class="col-6 col-sm-4 col-md-3">
+                                <a href="{{ asset('storage/'.$media->file_path) }}" target="_blank" class="d-block text-decoration-none text-center">
+                                    <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height:100px;">
+                                       @php
+    $ext = strtolower(pathinfo($media->file_path, PATHINFO_EXTENSION));
+@endphp
 
-                        @if(in_array($ext, ['jpg','jpeg','png','gif']))
-                            <img src="{{ asset('storage/'.$media->file_path) }}" alt="Evidence">
-                        @elseif(in_array($ext, ['mp4','mov','avi','mkv']))
-                            <span class="material-symbols-outlined fs-2 text-muted">videocam</span>
-                        @else
-                            <span class="material-symbols-outlined fs-2 text-muted">description</span>
-                        @endif
-                    </div>
-                    <p>{{ basename($media->file_path) }}</p>
-                </a>
-            </div>
-        @empty
-            <p class="text-muted">No evidence attached.</p>
-        @endforelse
-    </div>
+@if(in_array($ext, ['jpg','jpeg','png','gif','webp']))
+    {{-- Image preview --}}
+    <img src="{{ asset('storage/'.$media->file_path) }}" alt="Evidence" class="img-fluid h-100 object-fit-contain">
+
+@elseif(in_array($ext, ['mp4','mov','avi','mkv']))
+    {{-- Video icon --}}
+    <i class="bi bi-camera-video fs-2 text-secondary"></i>
+
+@elseif(in_array($ext, ['mp3','wav','aac']))
+    {{-- Audio icon --}}
+    <i class="bi bi-music-note-beamed fs-2 text-secondary"></i>
+
+@elseif(in_array($ext, ['zip','rar']))
+    {{-- Archive icon --}}
+    <i class="bi bi-file-zip fs-2 text-secondary"></i>
+
+@elseif(in_array($ext, ['pdf']))
+    {{-- PDF icon --}}
+    <i class="bi bi-filetype-pdf fs-2 text-danger"></i>
+
+@elseif(in_array($ext, ['doc','docx']))
+    {{-- Word icon --}}
+    <i class="bi bi-filetype-docx fs-2 text-primary"></i>
+
+@elseif(in_array($ext, ['xls','xlsx']))
+    {{-- Excel icon --}}
+    <i class="bi bi-filetype-xlsx fs-2 text-success"></i>
+
+@elseif(in_array($ext, ['txt']))
+    {{-- Text icon --}}
+    <i class="bi bi-file-text fs-2 text-secondary"></i>
+
+@else
+    {{-- Fallback icon for unknown file types --}}
+    <i class="bi bi-file-earmark fs-2 text-secondary"></i>
+@endif
+
 </div>
-
+<small class="d-block mt-2 text-truncate">{{ basename($media->file_path) }}</small>
+</a>
+</div>
+                        @empty
+                            <p class="text-muted">No evidence attached.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Right (Sidebar) -->
-        <div class="col-lg-4">
-            <div class="card-panel mb-4">
-                <h6 style="font-weight:700">Actions</h6>
-                <form action="{{ route('admin.complaints.update', $complaint->id) }}" method="POST" class="mt-3 d-flex flex-column gap-3">
-                    @csrf
-                    @method('PUT')
+        <!-- Right Column (Sidebar) -->
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Actions</h6>
+                    <form action="{{ route('admin.complaints.update', $complaint->id) }}" method="POST" class="d-flex flex-column gap-3">
+                        @csrf
+                        @method('PUT')
 
-                    <div>
-                        <label for="status" class="form-label muted" style="font-weight:600; font-size:.9rem">Update Status</label>
-                        <select id="status" name="status" class="form-select">
-                            <option value="">Select Status</option>
-                            <option value="received" {{ $complaint->status=='received' ? 'selected' : '' }}>Pending Review</option>
-                            <option value="under_review" {{ $complaint->status=='under_review' ? 'selected' : '' }}>Under Review</option>
-                            <option value="resolved" {{ $complaint->status=='resolved' ? 'selected' : '' }}>Resolved</option>
-                        </select>
-                    </div>
+                        <div>
+                            <label for="status" class="form-label small fw-semibold">Update Status</label>
+                            <select id="status" name="status" class="form-select">
+                                <option value="">Select Status</option>
+                                <option value="received" {{ $complaint->status=='received' ? 'selected' : '' }}>Pending Review</option>
+                                <option value="under_review" {{ $complaint->status=='under_review' ? 'selected' : '' }}>Under Review</option>
+                                <option value="resolved" {{ $complaint->status=='resolved' ? 'selected' : '' }}>Resolved</option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <label for="officer_id" class="form-label muted" style="font-weight:600; font-size:.9rem">Assign Officer</label>
-                        <select id="officer_id" name="officer_id" class="form-select">
-                            <option value="">Select Officer</option>
-                            @foreach($officers as $officer)
-                                <option value="{{ $officer->id }}" {{ $complaint->assigned_to==$officer->id ? 'selected' : '' }}>{{ $officer->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div>
+                            <label for="officer_id" class="form-label small fw-semibold">Assign Officer</label>
+                            <select id="officer_id" name="officer_id" class="form-select">
+                                <option value="">Select Officer</option>
+                                @foreach($officers as $officer)
+                                    <option value="{{ $officer->id }}" {{ $complaint->assigned_to==$officer->id ? 'selected' : '' }}>
+                                        {{ $officer->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div>
-                        <label for="note" class="form-label muted" style="font-weight:600; font-size:.9rem">Add Note</label>
-                        <textarea id="note" name="note" rows="3" class="form-control form-textarea" placeholder="Add any relevant notes..."></textarea>
-                    </div>
+                        <div>
+                            <label for="note" class="form-label small fw-semibold">Add Note</label>
+                            <textarea id="note" name="note" rows="3" class="form-control" placeholder="Add any relevant notes...">@if($complaint->note){{ $complaint->note }}
+    
+@endif
+</textarea>
+                        </div>
 
-                    <div>
-                        <button class="btn action-btn w-100 py-2 d-flex align-items-center justify-content-center gap-2 text-white" type="submit">
-                            Save Changes
+                        <button class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2" type="submit">
+                            <i class="bi bi-save"></i> Save Changes
                         </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
 
-            <!-- Action History -->
-            {{-- <div class="card-panel">
-                <h6 style="font-weight:700">Action History</h6>
-                <div class="mt-3 d-flex flex-column gap-3">
+            <!-- Action History (Optional) -->
+            {{-- <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Action History</h6>
                     @forelse($complaint->history as $h)
-                    <div class="history-item">
-                        <div class="history-icon">
-                            <span class="material-symbols-outlined" style="color:#111827; font-size:18px;">history</span>
-                        </div>
-                        <div>
+                        <div class="mb-3 border-bottom pb-2">
                             <p class="mb-1">{{ $h->note }}</p>
-                            <p class="muted small mb-0">by {{ $h->user?->name ?? 'Admin' }} on {{ $h->created_at->format('Y-m-d, h:i A') }}</p>
+                            <small class="text-muted">by {{ $h->user?->name ?? 'Admin' }} on {{ $h->created_at->format('Y-m-d, h:i A') }}</small>
                         </div>
-                    </div>
                     @empty
-                    <p class="text-muted">No history yet.</p>
+                        <p class="text-muted">No history yet.</p>
                     @endforelse
                 </div>
             </div> --}}
         </div>
     </div>
-
-</div>
-</div>
-</div>
+</div></div>
 @endsection

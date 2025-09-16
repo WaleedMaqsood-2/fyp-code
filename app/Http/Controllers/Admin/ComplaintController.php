@@ -34,6 +34,7 @@ class ComplaintController extends Controller
         $query = Complaint::with('user');
         $complaints = $query->paginate(12);
 
+        
         // 🔎 Filters
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -69,6 +70,7 @@ class ComplaintController extends Controller
         
 
         // 👮 Police officers list (assuming role_id=2 = police_officer)
+    
         $officers = User::where('role_id', 2)->get();
 
         return view('admin.manage-complaints', compact('complaints', 'officers'));
@@ -136,7 +138,10 @@ public function update(Request $request, $id)
     if ($request->officer_id) {
         $complaint->assigned_to = $request->officer_id;
     }
-
+if ($request->note) {
+        // Assuming there's a 'notes' column in complaints table
+        $complaint->note = $request->note;
+    }
     $complaint->save();
 
     // // Save note in history

@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::table('media_uploads', function (Blueprint $table) {
             // Update file_type enum to allow only valid values
-            $table->enum('file_type', ['image', 'video', 'audio', 'document', 'pdf', 'jpg', 'mp4','png','gif','webp','zip','rar','txt','docx','xlsx'])->default('image')->change();
+          $table->enum('file_type', ['image', 'video', 'audio', 'document', 'archive'])->default('document')->change();
+
         });
     }
 
@@ -18,7 +19,7 @@ return new class extends Migration
     {
         Schema::table('media_uploads', function (Blueprint $table) {
             // Revert back to previous enum if needed
-            $table->enum('file_type', ['image', 'video', 'audio', 'document'])->default('image')->change();
+            $table->enum('file_type', ['image', 'video', 'audio', 'document', 'pdf','mp3', 'jpg', 'mp4','png','gif','webp','zip','rar','txt','docx','xlsx'])->default('image')->change();
         });
     }
 };

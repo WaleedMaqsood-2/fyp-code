@@ -12,6 +12,11 @@
   
   @if ($users->count())
   @foreach($users as $user)
+  <style>
+    .user-card{
+      font-size: 13px;
+    }
+  </style>
   <div class="col-12 col-md-6 col-lg-4 mb-4 ">
                     
                 
@@ -284,10 +289,10 @@ $badgeClass = $is_verified_color[$is_verified_name] ?? 'text-secondary ';
                                 </div>
                                 <div class="col-8">
                                     <h5 class="card-title mb-2 fw-bold text-primary ">{{ Str::limit($user->name, 10, '...') }}</h5>
-                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">Email:</span> <span class="text-muted fs-6 user-card">{{ Str::limit($user->email, 15, '...') }}</span></p>
+                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">Email:</span> <span class="text-muted user-card">{{ Str::limit($user->email, 15, '...') }}</span></p>
 
-                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">Contact:</span> <span class="text-muted fs-6 user-card">{{ Str::limit($user->contact_number, 15, '...') }}</span></p>
-                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">CNIC:</span> <span class="text-muted fs-6 user-card">{{ Str::limit($user->cnic, 10, '...') }}</span></p>
+                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">Contact:</span> <span class="text-muted user-card">{{ Str::limit($user->contact_number, 15, '...') }}</span></p>
+                                    <p class="mb-0"><span class="fw-semibold text-dark fs-6">CNIC:</span> <span class="text-muted user-card">{{ Str::limit($user->cnic, 10, '...') }}</span></p>
                                 </div>
                             </div>
                         </div>
