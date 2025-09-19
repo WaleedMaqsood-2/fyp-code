@@ -1,7 +1,7 @@
-@extends('Public User.layouts.app')
+@extends('public_user.layouts.app')
 
 @push('styles')
-<link href="{{ asset('css/public user/complaints-form.css') }}" rel="stylesheet">
+<link href="{{ asset('css/public_user/complaints-form.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -73,21 +73,40 @@
           </div>
 
           <!-- Right Column -->
-          <div class="col-md-6">
-            <label class="form-label">Upload Evidence</label>
-            <div class="upload-box text-center p-4 border rounded">
-              <span class="material-symbols-outlined fs-1 text-secondary">upload_file</span>
-              <div class="mt-2">
-                <label for="file-upload" class="btn btn-link text-decoration-none text-primary fw-bold">
-                  Upload a file
-                  <input type="file" id="file-upload" name="evidence" class="d-none">
-                </label>
-                <span class="text-muted">or drag and drop</span>
-              </div>
-              <p class="small text-muted mt-1">Size up to 10MB</p>
-            </div>
-          </div>
-        </div>
+<!-- ✅ Upload Evidence Section -->
+<div class="col-md-6">
+  <label class="form-label">Upload Evidence</label>
+  <div class="upload-box text-center p-4 border rounded">
+    <span class="material-symbols-outlined fs-1 text-secondary">upload_file</span>
+    <div class="mt-2">
+      <!-- Custom Upload Button -->
+      <label for="evidence" class="btn btn-link text-decoration-none text-primary fw-bold">
+        Upload files
+      </label>
+      <input type="file" id="evidence" name="evidence[]" class="d-none" multiple>
+      <span class="text-muted">or drag and drop</span>
+    </div>
+    <p class="small text-muted mt-1">Size up to 10MB each</p>
+
+    <!-- ✅ Selected file names will appear here -->
+    <ul id="file-list" class="list-unstyled mt-2 text-start small text-success"></ul>
+  </div>
+</div>
+
+<!-- ✅ JS for showing file names -->
+<script>
+document.getElementById('evidence').addEventListener('change', function(e){
+    let fileList = document.getElementById('file-list');
+    fileList.innerHTML = ""; // purane file names clear karo
+
+    Array.from(e.target.files).forEach(file => {
+        let li = document.createElement('li');
+        li.textContent = file.name;
+        fileList.appendChild(li);
+    });
+});
+</script>
+
 
         <!-- Submit -->
         <div class="text-end mt-4">
@@ -97,6 +116,45 @@
           </button>
         </div>
       </form>
+    @if($complaints->isNotEmpty())
+<div class="mt-5">
+    <h3 class="fw-bold mb-3">Your Submitted Complaints</h3>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped table-bordered align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">Track ID</th>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Assigned To</th>
+                    <th scope="col">Submitted On</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($complaints as $complaint)
+                <tr>
+                    <td class="fw-semibold">{{ $complaint->track_id }}</td>
+                    <td>{{ $complaint->subject }}</td>
+                    <td>
+                        <span class="badge px-3 py-2 
+                            @if($complaint->status == 'received') bg-secondary
+                            @elseif($complaint->status == 'under_review') bg-warning text-dark
+                            @elseif($complaint->status == 'resolved') bg-success
+                            @else bg-dark @endif">
+                            {{ ucfirst($complaint->status) }}
+                        </span>
+                    </td>
+                    <td>{{ $complaint->assignedUser->name ?? 'Unassigned' }}</td>
+                    <td>{{ $complaint->created_at->format('F d, Y h:i A') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+
+
     </div>
   </main>
 </div>

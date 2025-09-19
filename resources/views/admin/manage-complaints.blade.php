@@ -8,6 +8,13 @@
             {{ $errors->first() }}
         </div>
     @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+        
+    @endif
     @if (session('success'))
     <div class="alert alert-success mt-2">
         {{ session('success') }}
@@ -63,7 +70,7 @@
                 <thead style="background: #f9fafb;">
                     <tr>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb;">#</th>
-                        <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Complaint ID</th>
+                        <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Tracking ID</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Complaint By</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Date</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Complainant</th>
@@ -77,7 +84,7 @@
                     @forelse ($complaints as $complaint)
                     <tr style="background: {{ $loop->even ? '#f9fafb' : '#fff' }};">
                         <td style="padding: 10px;">{{ $loop->iteration }}</td>
-                        <td style="padding: 10px;">{{ $complaint->id }}</td>
+                        <td style="padding: 10px;">{{ $complaint->track_id }}</td>
                         <td style="padding: 10px;">{{ $complaint->user?->name ?? 'N/A' }}</td>
                         <td style="padding: 10px;">{{ $complaint->created_at->format('Y-m-d') }}</td>
                         <td style="padding: 10px;">{{ $complaint->user?->name ?? 'N/A' }}</td>

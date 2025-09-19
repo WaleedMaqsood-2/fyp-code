@@ -1,0 +1,62 @@
+
+  
+    body {
+      background-color: #f9fafb;
+      font-family: "Public Sans", sans-serif;
+      color: #333;
+    }
+    .navbar-brand svg {
+      color: #1173d4;
+    }
+    .navbar-brand h2 {
+      font-family: "Eczar", serif;
+      font-weight: 700;
+      margin: 0;
+    }
+    .nav-link.active {
+      color: #1173d4 !important;
+      font-weight: 600;
+    }
+    .btn-primary {
+      background-color: #1173d4;
+      border-color: #1173d4;
+    }
+    .btn-primary:hover {
+      background-color: #0e5cad;
+    }
+    .timeline {
+      position: relative;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 20px;
+      width: 2px;
+      height: 100%;
+      background: #e5e7eb;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+      padding-left: 3.5rem;
+    }
+    .timeline-icon {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #1173d4;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .timeline-icon.gray {
+      background: #9ca3af;
+    }

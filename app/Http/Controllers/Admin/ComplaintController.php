@@ -86,6 +86,10 @@ class ComplaintController extends Controller
         ]);
 
         $complaint = Complaint::findOrFail($id);
+         if($complaint->status == 'received')
+        {
+            return redirect()->back()->with('error', 'Please review the complaint before assigning an officer.');
+        }
         $complaint->assigned_to = $request->officer_id;
         $complaint->save();
 
@@ -98,12 +102,25 @@ class ComplaintController extends Controller
         $request->validate([
             'status' => 'required|string'
         ]);
-
         $complaint = Complaint::findOrFail($id);
-        $complaint->status = $request->status;
-        $complaint->save();
 
-        return redirect()->back()->with('success', 'Complaint status updated.');
+        if($complaint->status == 'received' ){
+            if($request->status != 'under_review'){
+                return redirect()->back()->with('error', 'Please assign the complaint before changing status.');
+            }
+                $complaint->status = $request->status;
+            $complaint->save();
+            return redirect()->back()->with('success', 'Complaint status updated.');
+        }
+        elseif($complaint->assigned_to == ''){
+            return redirect()->back()->with('error', 'Please assign the complaint before changing status.');
+        }
+else{
+            $complaint->status = $request->status;
+            $complaint->save();
+            return redirect()->back()->with('success', 'Complaint status updated successfully.');
+        }
+       
     }
 
    // Show complaint details page
@@ -121,39 +138,52 @@ public function show($id)
 }
 
 // Update status, assign officer, and add notes
+// ✅ Update status, assign officer, and add notes (with conditions)
 public function update(Request $request, $id)
 {
     $request->validate([
-        'status' => 'nullable|string',
-        'note' => 'nullable|string',
+        'status'     => 'nullable|string',
+        'note'       => 'nullable|string',
         'officer_id' => 'nullable|exists:users,id'
     ]);
 
     $complaint = Complaint::findOrFail($id);
 
-    if ($request->status) {
-        $complaint->status = $request->status;
-    }
-
+    // 🔹 Assign Officer logic (same as assign method)
     if ($request->officer_id) {
+        if ($complaint->status == 'received') {
+            return redirect()->back()->with('error', 'Please review the complaint before assigning an officer.');
+        }
         $complaint->assigned_to = $request->officer_id;
     }
-if ($request->note) {
-        // Assuming there's a 'notes' column in complaints table
+
+    // 🔹 Change Status logic (same as changeStatus method)
+    if ($request->status) {
+        if ($complaint->status == 'received') {
+            if ($request->status != 'under_review') {
+                return redirect()->back()->with('error', 'Please assign the complaint before changing status.');
+            }
+            $complaint->status = $request->status;
+        }
+        elseif (empty($complaint->assigned_to)) {
+            return redirect()->back()->with('error', 'Please assign the complaint before changing status.');
+        }
+        else {
+            $complaint->status = $request->status;
+        }
+    }
+
+    // 🔹 Notes logic
+    if ($request->note) {
+        // assuming complaints table has a 'note' column
         $complaint->note = $request->note;
     }
-    $complaint->save();
 
-    // // Save note in history
-    // if ($request->note) {
-    //     $complaint->history()->create([
-    //         'note' => $request->note,
-    //         'user_id' => auth()->id(),
-    //     ]);
-    // }
+    $complaint->save();
 
     return redirect()->back()->with('success', 'Complaint updated successfully.');
 }
+
 
 // Delete complaint (already exists)
 public function destroy($id)

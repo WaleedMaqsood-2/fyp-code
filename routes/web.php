@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\ComplaintTrackController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -113,19 +114,20 @@ Route::middleware('auth')->group(function () {
     return view('Public User.welcome');
   })->name('public.welcome');
     Route::get('/Public/dashboard', function () {
-        return view('Public User.dashboard');
+        return view('public_user.dashboard');
     })->name('public.dashboard');
-  Route::get('/Public/complaints-form', function () {
-    return view('Public User.complaints-form');
-})->name('public.complaints.form');
-    Route::get('/Public/complaints-track', function () {
-        return view('Public User.complaints-track');
-    })->name('public.complaints.track');
+//     Route::get('/Public/complaints-form', function () {
+//     return view('public_user.complaints-form');
+// })->name('public.complaints.form');
+Route::get('/Public/complaints-form', [ComplaintController::class, 'store'])->name('public.complaints.form');
+  Route::get('/Public/complaints-form', [ComplaintController::class, 'create'])->name('public.complaints.form');
+  Route::get('/Public/complaints-track', [ComplaintTrackController::class, 'index'])->name('public.complaints.track');
+
     Route::get('/Public/public-alerts', function () {
-        return view('Public User.public-alerts');
+        return view('public_user.public-alerts');
     })->name('public.alerts');
     Route::get('/Public/profile-update', function () {
-        return view('Public User.profile-update');
+        return view('public_user.profile-update');
     })->name('public.profile.update');
 
 
@@ -133,3 +135,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/complaints/store', [ComplaintController::class, 'store'])->name('complaints.store');
 
 
+Route::get('/complaints-track', [ComplaintTrackController::class, 'index'])->name('complaints.track');
+Route::post('/complaints-track', [ComplaintTrackController::class, 'track'])->name('complaints.track.submit');
+
+
+// routes/web.php
+Route::get('/complaints/form', [ComplaintController::class, 'create'])->name('public.complaints.form');

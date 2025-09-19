@@ -12,7 +12,7 @@
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
- <link href="{{ asset('css/public user/app.css') }}" rel="stylesheet">
+ <link href="{{ asset('css/public_user/app.css') }}" rel="stylesheet">
   @stack('styles')
 
 </head>
@@ -102,7 +102,7 @@
         <span class="fw-bold">CrimeWatch</span>
       </div>
       <div class="mt-4 mt-lg-0 text-center text-secondary ">
-          <p class="text-secondary small mb-0">&copy; 2024 CrimeWatch. All rights reserved.</p>
+          <p class="text-secondary small mb-0">&copy; <script>document.write(new Date().getFullYear());</script> CrimeWatch. All rights reserved.</p>
           <div class="mt-4 text-center text-secondary small">
               <a   class="text-decoration-none text-dark ms-4" href="#">Privacy Policy</a>
               <a class="text-decoration-none text-dark ms-4" href="#">Terms of Service</a>

@@ -27,9 +27,14 @@ class Complaint extends Model
     // Optional: relationship to User
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function assignedUser()
+{
+    // Complaint assign kiya gaya officer
+    return $this->belongsTo(User::class, 'assigned_to');
+}
     public function media()
     {
         return $this->hasMany(Media::class, 'complaint_id');

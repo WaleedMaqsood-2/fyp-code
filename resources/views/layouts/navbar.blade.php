@@ -21,7 +21,7 @@
       <!-- End Logo Header -->
     </div>
     <!-- Navbar Header -->
-    <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+    <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom me-2">
       <div class="container-fluid">
         <!-- Admin User Search Bar -->
         {{-- <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex ">

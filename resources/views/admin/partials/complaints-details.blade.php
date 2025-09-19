@@ -8,7 +8,23 @@
 @section('content')
 <div class="container py-4">
 <div class="ms-2 mt-4">
+ @if ($errors->any())
+        <div class="alert alert-danger">
+            {{ $errors->first() }}
+        </div>
+    @endif
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+        
+    @endif
+    @if (session('success'))
+    <div class="alert alert-success mt-2">
+        {{ session('success') }}
+    </div>
+@endif
 
     <!-- Back + Heading -->
     <div class="mb-4">

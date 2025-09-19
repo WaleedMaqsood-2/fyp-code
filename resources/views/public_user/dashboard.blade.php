@@ -1,7 +1,7 @@
-@extends('Public User.layouts.app')
+@extends('public_user.layouts.app')
 
 @push('styles')
-<link href="{{ asset('css/public user/dashboard.css') }}" rel="stylesheet">
+<link href="{{ asset('css/public_user/dashboard.css') }}" rel="stylesheet">
 @endpush
 @section('title', 'User Dashboard')
 
