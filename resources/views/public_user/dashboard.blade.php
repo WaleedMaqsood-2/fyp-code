@@ -83,6 +83,22 @@
       </div>
     </div>
   </div>
+
+
+  <div class="border-top pt-5">
+  <h3 class="fw-bold text-center mb-4">Latest Public Alerts</h3>
+  <div class="row g-4">
+
+    @include('public_user.partials.alerts-cards')
+
+  </div>
+</div>
+<div class="text-center mt-4">
+    <a href="{{ route('public.alerts') }}" class="btn btn-primary px-4">
+        View All Alerts
+    </a>
+</div>
+
 </main>
 
 @endsection

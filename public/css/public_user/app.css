@@ -10,7 +10,46 @@
       color: var(--text-primary);
     }
     .nav-link { font-size: 1rem; font-weight: 500; color: #6b7280; }
+    .nav-link.active { color: var(--primary-color) !important; font-weight: 600; }
     .nav-link:hover { color: var(--primary-color); }
+
+
+    /* Default (mobile first) */
+.custom-gap {
+  gap: 20px; /* Mobile screens ke liye chhota gap */
+
+}
+
+/* Tablet screens (≥768px) */
+@media (min-width: 768px) {
+  .custom-gap {
+    gap: 50px; /* Tablet pe medium gap */
+  }
+  ul.navbar-nav li.nav-item {
+    margin-left: 10px;
+  }
+}
+
+/* Laptop screens (≥992px) */
+@media (min-width: 992px) {
+  .custom-gap {
+    gap: 40px; /* Laptop pe thoda zyada gap */
+  }
+  ul.navbar-nav li.nav-item {
+    margin: 0;
+  }
+}
+
+/* Large desktops (≥1200px) */
+@media (min-width: 1200px) {
+  .custom-gap {
+    gap: 120px; /* Desktop pe maximum gap */
+  }
+
+  ul.navbar-nav li.nav-item {
+    margin-left: 20px;
+  }
+}
 
      /* Search Input */
     .search-input {

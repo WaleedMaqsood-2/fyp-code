@@ -9,6 +9,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ComplaintTrackController;
+use App\Http\Controllers\UserPublicAlerts;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +34,17 @@ Route::get('manage-media', function () {
 Route::get('ai-feedback', function () {
     return view('admin.ai-feedback');
 })->name('ai.feedback');
+// Route::get('public-alerts', function () {
+//     return view('admin.manage-public-alerts');
+// })->name('manage-public.alerts');
+
+
+// Admin - Manage Public Alerts
+Route::get('/admin/public-alerts', [App\Http\Controllers\Admin\PublicAlertController::class, 'index'])->name('admin.public.alerts');
+Route::post('/admin/public-alerts/store', [App\Http\Controllers\Admin\PublicAlertController::class, 'store'])->name('admin.public.alerts.store');
+Route::delete('/admin/public-alerts/{id}', [App\Http\Controllers\Admin\PublicAlertController::class, 'destroy'])->name('admin.public.alerts.delete');
+Route::get('/admin/public-alerts/{id}/edit', [App\Http\Controllers\Admin\PublicAlertController::class, 'edit'])->name('admin.public.alerts.edit');
+Route::put('/admin/public-alerts/{id}', [App\Http\Controllers\Admin\PublicAlertController::class, 'update'])->name('admin.public.alerts.update');
 
 Route::get('ai-usage', function () {
     return view('admin.ai-usage');
@@ -111,11 +124,10 @@ Route::middleware('auth')->group(function () {
 
   //Public User Routes
   Route::get('/Public/welcome', function () {
-    return view('Public User.welcome');
+    return view('public_user.welcome');
   })->name('public.welcome');
-    Route::get('/Public/dashboard', function () {
-        return view('public_user.dashboard');
-    })->name('public.dashboard');
+    Route::get('/Public/dashboard',[UserPublicAlerts::class, 'index'])
+    ->name('public.dashboard');
 //     Route::get('/Public/complaints-form', function () {
 //     return view('public_user.complaints-form');
 // })->name('public.complaints.form');
@@ -123,9 +135,8 @@ Route::get('/Public/complaints-form', [ComplaintController::class, 'store'])->na
   Route::get('/Public/complaints-form', [ComplaintController::class, 'create'])->name('public.complaints.form');
   Route::get('/Public/complaints-track', [ComplaintTrackController::class, 'index'])->name('public.complaints.track');
 
-    Route::get('/Public/public-alerts', function () {
-        return view('public_user.public-alerts');
-    })->name('public.alerts');
+    Route::get('/Public/public-alerts', [UserPublicAlerts::class, 'allAlerts'])
+     ->name('public.alerts');
     Route::get('/Public/profile-update', function () {
         return view('public_user.profile-update');
     })->name('public.profile.update');
@@ -137,7 +148,8 @@ Route::get('/Public/complaints-form', [ComplaintController::class, 'store'])->na
 
 Route::get('/complaints-track', [ComplaintTrackController::class, 'index'])->name('complaints.track');
 Route::post('/complaints-track', [ComplaintTrackController::class, 'track'])->name('complaints.track.submit');
+Route::delete('/complaints/{id}/hide', [ComplaintController::class, 'hide'])->name('complaints.hide');
+
 
 
 // routes/web.php
-Route::get('/complaints/form', [ComplaintController::class, 'create'])->name('public.complaints.form');

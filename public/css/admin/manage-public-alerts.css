@@ -1,0 +1,83 @@
+ body {
+      font-family: 'Public Sans', sans-serif;
+      background-color: #f8f9fa;
+    }
+ 
+    .card-custom {
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .btn-primary {
+      border-radius: 8px;
+      padding: 8px 16px;
+    }
+    .table th, .table td {
+      vertical-align: middle;
+    }
+    .badge {
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    .page-header {
+        border-bottom: 2px solid #eee;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        
+    }
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .table thead th {
+        background-color: #f8f9fa;
+    }
+    .media-preview img, 
+    .media-preview video {
+        max-height: 80px;
+        border-radius: 8px;
+    }
+
+
+
+.media-card {
+    transition: transform 0.2s ease-in-out;
+}
+.media-card:hover {
+    transform: scale(1.05);
+}
+.media-wrapper {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.media-wrapper img, 
+.media-wrapper video {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+}
+.modal-content {
+    border-radius: 12px;
+  
+}
+
+.form-label {
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    box-shadow: none !important;
+}
+
+textarea.form-control {
+    resize: none;
+}
+

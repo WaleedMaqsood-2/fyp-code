@@ -1,0 +1,65 @@
+
+    :root {
+      --primary-color: #1173d4;
+      --secondary-color: #f0f4f8;
+      --text-primary: #1a202c;
+      --text-secondary: #4a5568;
+    }
+    body {
+      font-family: "Public Sans", "Noto Sans", sans-serif;
+      background-color: #f8fafc;
+    }
+    .navbar-brand svg {
+      color: var(--primary-color);
+    }
+    .hero-section {
+      position: relative;
+      background: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBgLLSwYccy51UN2lxvruCQ3CCovnXwi6MATXrwL9ZOdewI_udGIbZTuUouQVYsiSvunSSHloGgMz50hKEa1F72tjMgglKn8NAM9DmYZNg7BHJYKfYWjALKszIauk7QXLp_u9WG-7EkkLEj3jS9IFbbiIvW6Mjgp9_VHUmScswm4Qd2NCJWLlnIjuSj8G-wekQv-sbNZidwtC_GwSNzfaKtHBjEM8ZJNUt3AF6ovu-iOm596nWy8-Oo2S3rkNCFB96vNB0Dmv5Zwyap') no-repeat center center/cover;
+      min-height: 100vh;
+      color: white;
+    }
+    .hero-overlay {
+      background: rgba(0, 0, 0, 0.5);
+      position: absolute;
+      inset: 0;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+    .card img {
+      height: 220px;
+      object-fit: cover;
+    }
+
+
+     /* Cards */
+    .custom-card {
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+    .custom-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .card-badge {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 50rem;
+      color: #fff;
+    }
+
+    
+    footer {
+      background: var(--secondary-color);
+    }
+    footer .brand {
+      color: var(--primary-color);
+    }
+
+

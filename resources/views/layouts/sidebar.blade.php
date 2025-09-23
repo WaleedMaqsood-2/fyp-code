@@ -48,6 +48,12 @@
                   <p>Manage Complaints</p>
                 </a>
               </li>
+              <li class="nav-item {{ Route::currentRouteName() == 'manage-public.alerts' ? 'active' : '' }}">
+                <a href="{{ route('admin.public.alerts') }}">
+                  <i class="fas fa-exclamation-circle"></i>
+                  <p>Manage Alerts</p>
+                </a>
+              </li>
               <li class="nav-item {{ Route::currentRouteName() == 'ai.usage' ? 'active' : '' }}">
                 <a href="{{ route('ai.usage') }}">
                   <i class="fas fa-robot"></i>

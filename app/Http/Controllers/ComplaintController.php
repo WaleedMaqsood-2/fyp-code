@@ -8,18 +8,24 @@ use Illuminate\Support\Facades\Auth;
 
 class ComplaintController extends Controller
 {
-    public function create()
-    {
-    $user = Auth::user();
-    $complaints = Complaint::with(['user', 'assignedUser'])
-                ->where('user_id', $user->id)
-                ->latest()
-                ->get();
- 
-    
-               
-    return view('public_user.complaints-form', compact('complaints'));
+   public function create()
+{
+    if (Auth::check()) {
+        $user = Auth::user();
+        $complaints = Complaint::with(['user', 'assignedUser'])
+            ->where('user_id', $user->id)
+            ->where('is_visible_to_user', 1) // sirf visible wali complaints show karo
+            ->latest()
+            ->get();
+
+    } else {
+        // ✅ Agar user login nahi hai, empty collection bhej do
+        $complaints = collect();
     }
+
+    return view('public_user.complaints-form', compact('complaints'));
+}
+
     
 
     public function store(Request $request)
@@ -50,10 +56,10 @@ class ComplaintController extends Controller
     [
         
     ]);
-
+$userId = Auth::check() ? Auth::id() : null;
         // 1. Save complaint
         $complaint = Complaint::create([
-            'user_id' => Auth::id(),
+            'user_id' => $userId,
             'track_id' => $trackId,
             'description' => $request->description,
             'status' => 'received',
@@ -86,7 +92,7 @@ if ($request->hasFile('evidence')) {
             }
 
             Media::create([
-                'user_id'      => Auth::id(),
+                'user_id'      => $userId,
                 'complaint_id' => $complaint->id,
                 'file_type'    => $fileType,
                 'file_path'    => $path,
@@ -96,8 +102,24 @@ if ($request->hasFile('evidence')) {
     }
 }
 
+
 return redirect()->route('public.complaints.form')
     ->with('success', 'Complaint submitted successfully! Your Track ID: ' . $trackId);
 }
 
+
+
+public function hide($id)
+{
+    $complaint = Complaint::where('id', $id)
+        ->where('user_id', Auth::id()) // ensure ke sirf apni complaint delete kar sake
+        ->firstOrFail();
+
+    $complaint->is_visible_to_user = 0; // hide kar do
+    $complaint->save();
+
+    return back()->with('success', 'Complaint deleted successfully.');
 }
+
+}
+

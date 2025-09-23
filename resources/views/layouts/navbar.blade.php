@@ -214,105 +214,110 @@
           @php
             $user =Auth::user();
           @endphp
-          <li class="nav-item topbar-user dropdown hidden-caret">
-            @if($user)
-              <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-                <div class="avatar-sm">
-                  <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
-                </div>
-                <span class="profile-username">
-                  <span class="op-7">{{ $user->name }}</span>
-                </span>
-              </a>
-              <ul class="dropdown-menu dropdown-user animated fadeIn">
-                <div class="dropdown-user-scroll scrollbar-outer">
-                  <li>
+ 
+<li class="nav-item topbar-user dropdown hidden-caret">
+  @include('partials.profile-dropdown')
+    {{-- @if($user)
+        <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+            <div class="avatar-sm">
+                <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
+            </div>
+            <span class="profile-username">
+                <span class="op-7">{{ $user->name }}</span>
+            </span>
+        </a>
+        <ul class="dropdown-menu dropdown-user animated fadeIn">
+            <div class="dropdown-user-scroll scrollbar-outer">
+                <li>
                     <div class="user-box">
-                      <div class="avatar-lg">
-                        <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
-                      </div>
-                      <div class="u-text">
-                        <h4>{{ $user->name }}</h4>
-                        <p class="text-muted">{{ $user->email }}</p>
-                        <!-- Profile Edit Button -->
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                          <i class="fas fa-user-edit"></i> Edit Profile
-                        </button>
-                      </div>
+                        <div class="avatar-lg">
+                            <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
+                        </div>
+                        <div class="u-text">
+                            <h4>{{ $user->name }}</h4>
+                            <p class="text-muted">{{ $user->email }}</p>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                <i class="fas fa-user-edit"></i> Edit Profile
+                            </button>
+                        </div>
                     </div>
-                  </li>
-                  <li>
+                </li>
+                <li>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#">My Profile</a>
                     <a class="dropdown-item" href="#">Account Setting</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('logout') }}">Logout</a>
-                  </li>
+                </li>
+            </div>
+        </ul>
+    @else
+        <a class="btn btn-primary" href="{{ route('login') }}">Login</a>
+        <a class="btn btn-secondary ms-2" href="{{ route('register') }}">Register</a>
+    @endif --}}
+</li>
+
+<!-- Profile Edit Modal -->
+{{-- <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Name</label>
+                        <input type="text" name="name" value="{{ $user->name }}" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ $user->email }}" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Password (leave blank if not changing)</label>
+                        <input type="password" name="password" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Confirm Password</label>
+                        <input type="password" name="password_confirmation" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>CNIC</label>
+                        <input type="text" name="cnic" value="{{ $user->cnic }}" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Contact Number</label>
+                        <input type="text" name="contact_number" value="{{ $user->contact_number }}" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Profile Image</label>
+                        <input type="file" name="profile_image" class="form-control">
+                        @if($user->profile_image)
+                            <img src="{{ asset('storage/' . $user->profile_image) }}" alt="Profile Image" class="img-thumbnail mt-2" width="100">
+                        @endif
+                    </div>
                 </div>
-              </ul>
-            @else
-              <a class="btn btn-primary" href="{{ route('login') }}">Login</a>
-              <a class="btn btn-secondary ms-2" href="{{ route('register') }}">Register</a>
-            @endif
-          </li>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> --}}
+
+      
         </ul>
       </div>
     </nav>
   </div>
   <!-- End Navbar -->
 
-  <!-- Profile Edit Modal -->
-  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
-          @csrf
-          <div class="modal-body">
-            <div class="mb-3">
-              <label>Name</label>
-              <input type="text" name="name" value="{{ $user->name }}" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label>Email</label>
-              <input type="email" name="email" value="{{ $user->email }}" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label>Password (leave blank if not changing)</label>
-              <input type="password" name="password" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label>Confirm Password</label>
-              <input type="password" name="password_confirmation" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label>CNIC</label>
-              <input type="text" name="cnic" value="{{ $user->cnic }}" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label>Contact Number</label>
-              <input type="text" name="contact_number" value="{{ $user->contact_number }}" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label>Profile Image</label>
-              <input type="file" name="profile_image" class="form-control">
-              @if($user->profile_image)
-                <img src="{{ asset('storage/' . $user->profile_image) }}" alt="Profile Image" class="img-thumbnail mt-2" width="100">
-              @endif
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success">Update Profile</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
+  
+@include('partials.profile-modal')
 
     <!-- User Search Modal -->
         <div class="modal fade" id="userSearchModal" tabindex="-1" aria-labelledby="userSearchModalLabel" aria-hidden="true">

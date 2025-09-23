@@ -93,30 +93,19 @@
   </div>
 </div>
 
-<!-- ✅ JS for showing file names -->
-<script>
-document.getElementById('evidence').addEventListener('change', function(e){
-    let fileList = document.getElementById('file-list');
-    fileList.innerHTML = ""; // purane file names clear karo
-
-    Array.from(e.target.files).forEach(file => {
-        let li = document.createElement('li');
-        li.textContent = file.name;
-        fileList.appendChild(li);
-    });
-});
-</script>
 
 
-        <!-- Submit -->
-        <div class="text-end mt-4">
+<!-- Submit -->
+<div class="text-end mt-4">
           <button type="submit" class="btn btn-primary-custom text-white px-4 py-2">
             {{-- <span class="material-symbols-outlined">send</span> --}}
             Submit Complaint
           </button>
         </div>
       </form>
-    @if($complaints->isNotEmpty())
+
+      
+    @if(isset($complaints) && $complaints->isNotEmpty())
 <div class="mt-5">
     <h3 class="fw-bold mb-3">Your Submitted Complaints</h3>
     <div class="table-responsive">
@@ -128,6 +117,8 @@ document.getElementById('evidence').addEventListener('change', function(e){
                     <th scope="col">Status</th>
                     <th scope="col">Assigned To</th>
                     <th scope="col">Submitted On</th>
+                    <th scope="col">Action</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -137,7 +128,7 @@ document.getElementById('evidence').addEventListener('change', function(e){
                     <td>{{ $complaint->subject }}</td>
                     <td>
                         <span class="badge px-3 py-2 
-                            @if($complaint->status == 'received') bg-secondary
+                        @if($complaint->status == 'received') bg-secondary
                             @elseif($complaint->status == 'under_review') bg-warning text-dark
                             @elseif($complaint->status == 'resolved') bg-success
                             @else bg-dark @endif">
@@ -146,6 +137,14 @@ document.getElementById('evidence').addEventListener('change', function(e){
                     </td>
                     <td>{{ $complaint->assignedUser->name ?? 'Unassigned' }}</td>
                     <td>{{ $complaint->created_at->format('F d, Y h:i A') }}</td>
+                    <td>
+    <form action="{{ route('complaints.hide', $complaint->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this complaint from your view?');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+    </form>
+</td>
+
                 </tr>
                 @endforeach
             </tbody>
@@ -159,3 +158,17 @@ document.getElementById('evidence').addEventListener('change', function(e){
   </main>
 </div>
 @endsection
+
+                            <!-- ✅ JS for showing file names -->
+                            <script>
+                            document.getElementById('evidence').addEventListener('change', function(e){
+                                let fileList = document.getElementById('file-list');
+                                fileList.innerHTML = ""; // purane file names clear karo
+                            
+                                Array.from(e.target.files).forEach(file => {
+                                    let li = document.createElement('li');
+                                    li.textContent = file.name;
+                                    fileList.appendChild(li);
+                                });
+                            });
+                            </script>

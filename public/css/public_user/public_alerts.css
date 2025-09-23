@@ -1,0 +1,30 @@
+  :root {
+      --primary-color: #1173d4;
+    }
+    body {
+      background-color: #f9fafb;
+      font-family: "Public Sans", sans-serif;
+    }
+    .navbar-brand svg {
+      color: var(--primary-color);
+    }
+    .navbar-brand h2 {
+      font-family: "Eczar", serif;
+      font-weight: 700;
+    }
+    .nav-link.active, 
+    .nav-link:hover {
+      color: var(--primary-color) !important;
+      font-weight: 600;
+    }
+    .form-control:focus, 
+    .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(17,115,212,0.25);
+    }
+    .badge-category {
+      font-size: 0.9rem;
+      padding: 0.4em 0.8em;
+      border-radius: 50rem;
+      font-weight: 600;
+    }
