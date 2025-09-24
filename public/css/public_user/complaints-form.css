@@ -9,8 +9,8 @@
       background-color: #f9fafb;
     }
     .btn-primary-custom {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
+      background-color: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
     }
     .btn-primary-custom:hover {
       background-color: #0f5fb0;

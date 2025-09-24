@@ -12,7 +12,7 @@
       transition: all 0.3s;
     }
     .btn-primary-custom {
-      background-color: var(--primary-color);
+      background-color: var(--primary-color) !important;
       color: #fff;
     }
     .btn-primary-custom:hover {
@@ -22,40 +22,31 @@
     }
     .btn-secondary-custom {
       background-color: var(--secondary-color);
-      color: var(--text-primary);
+      color: var(--text-primary) !important;
     }
     .btn-secondary-custom:hover {
       background-color: #d7dee6;
     }
   
-   
-  /* Buttons */
-    .btn-custom {
+   .login{
       display: flex;
-      align-items: center;
       justify-content: center;
-      height: 3rem;
-      padding: 0 1.5rem;
-      border-radius: 0.75rem;
-      font-size: 1rem;
-      font-weight: 700;
-      transition: all 0.3s;
+     
     }
-    .btn-primary-custom {
-      background-color: var(--primary-color);
-      color: #fff;
+    .hero-section {
+      position: relative;
+      background: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBgLLSwYccy51UN2lxvruCQ3CCovnXwi6MATXrwL9ZOdewI_udGIbZTuUouQVYsiSvunSSHloGgMz50hKEa1F72tjMgglKn8NAM9DmYZNg7BHJYKfYWjALKszIauk7QXLp_u9WG-7EkkLEj3jS9IFbbiIvW6Mjgp9_VHUmScswm4Qd2NCJWLlnIjuSj8G-wekQv-sbNZidwtC_GwSNzfaKtHBjEM8ZJNUt3AF6ovu-iOm596nWy8-Oo2S3rkNCFB96vNB0Dmv5Zwyap') no-repeat center center/cover;
+      min-height: 100vh;
+      color: white;
     }
-    .btn-primary-custom:hover {
-      background-color: #0e5fb0;
-      transform: translateY(-3px);
-      box-shadow: 0 4px 10px rgba(17, 115, 212, 0.3);
+    .hero-overlay {
+      background: rgba(0, 0, 0, 0.5);
+      position: absolute;
+      inset: 0;
     }
-    .btn-secondary-custom {
-      background-color: var(--secondary-color);
-      color: var(--text-primary);
-    }
-    .btn-secondary-custom:hover {
-      background-color: #d7dee6;
+    .hero-content {
+      position: relative;
+      z-index: 2;
     }
     /* Cards */
     .custom-card {

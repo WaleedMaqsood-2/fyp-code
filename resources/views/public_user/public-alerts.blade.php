@@ -38,20 +38,19 @@
         <input type="text" class="form-control" name="search" id="search" placeholder="Search by keyword" value="{{ request('search') }}">
     </div>
 
-    <div class="col-12 col-md-4">
-        <label for="alert-type" class="form-label">Alert Type</label>
-        <select id="alert-type" name="type" class="form-select">
-            <option value="all">All Types</option>
-            <option value="crime_alert" {{ request('type')=='crime_alert' ? 'selected' : '' }}>Crime</option>
-            <option value="notice" {{ request('type')=='notice' ? 'selected' : '' }}>Notice</option>
-            <option value="missing person" {{ request('type')=='missing person' ? 'selected' : '' }}>Missing Person</option>
-            <option value="Warning" {{ request('type')=='Warning' ? 'selected' : '' }}>Warning</option>
-            <option value="Critical" {{ request('type')=='Critical' ? 'selected' : '' }}>Critical</option>
-            <option value="helpline" {{ request('type')=='helpline' ? 'selected' : '' }}>Helpline</option>
-            <option value="Informational" {{ request('type')=='Informational' ? 'selected' : '' }}>Informational</option>
+   <div class="col-12 col-md-4">
+    <label for="alert-type" class="form-label">Alert Type</label>
+    <select id="alert-type" name="type" class="form-select">
+        <option value="all">All Types</option>
+        @foreach($alertTypes as $type)
+           <option value="{{ $type }}" {{ request('type') == $type ? 'selected' : '' }}>
+    {{ Str::title(str_replace('_', ' ', $type)) }}
+</option>
 
-        </select>
-    </div>
+        @endforeach
+    </select>
+</div>
+
 
     <div class="col-12 col-md-4">
         <label for="date-range" class="form-label">Date</label>

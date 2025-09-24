@@ -4,7 +4,13 @@
   <link href="{{ asset('css/public_user/track-complaints.css') }}" rel="stylesheet">
 @endpush
 @section('content')
-  <!-- Alerts -->
+ 
+
+
+
+  <!-- Main -->
+  <main class="container w-75 mx-auto py-5">
+     <!-- Alerts -->
   @if ($errors->any())
     <div class="alert alert-danger">
       {{ $errors->first() }}
@@ -15,11 +21,6 @@
       {{ session('success') }}
     </div>
   @endif
-
-
-
-  <!-- Main -->
-  <main class="container w-75 mx-auto">
     <div class="text-center mb-5">
       <h1 class="fw-bold" style="font-family: 'Eczar', serif;">Complaint Tracking</h1>
       <p class="text-muted">Track the progress of your submitted complaint using the reference number provided.</p>

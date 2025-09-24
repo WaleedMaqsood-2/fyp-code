@@ -32,11 +32,13 @@
             </div>
         </li>
         <li>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">My Profile</a>
-            <a class="dropdown-item" href="#">Account Setting</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ route('logout') }}">Logout</a>
+            
+           <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewProfileModal{{ $user->id }}"><i class="fas fa-user me-1"></i> My Profile</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+    
         </li>
     </div>
 </ul>

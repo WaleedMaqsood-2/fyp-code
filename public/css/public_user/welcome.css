@@ -12,6 +12,11 @@
     .navbar-brand svg {
       color: var(--primary-color);
     }
+    .login{
+      display: flex;
+      justify-content: center;
+     
+    }
     .hero-section {
       position: relative;
       background: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBgLLSwYccy51UN2lxvruCQ3CCovnXwi6MATXrwL9ZOdewI_udGIbZTuUouQVYsiSvunSSHloGgMz50hKEa1F72tjMgglKn8NAM9DmYZNg7BHJYKfYWjALKszIauk7QXLp_u9WG-7EkkLEj3jS9IFbbiIvW6Mjgp9_VHUmScswm4Qd2NCJWLlnIjuSj8G-wekQv-sbNZidwtC_GwSNzfaKtHBjEM8ZJNUt3AF6ovu-iOm596nWy8-Oo2S3rkNCFB96vNB0Dmv5Zwyap') no-repeat center center/cover;

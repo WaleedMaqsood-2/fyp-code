@@ -25,6 +25,19 @@ class UserPublicAlerts extends Controller
                              
                              return view('public_user.dashboard', compact('alerts'));
     }
+    public function welcomeIndex()
+    {
+        // Sirf woh alerts jo abhi tak valid hain
+        $alerts = PublicAlert::where('visible_until', '>=', Carbon::now())
+    ->orderBy('id', 'desc')
+    ->take(3) // sirf 3 latest alerts lo
+    ->get()
+    ->map(function ($alert) {
+        $alert->media = json_decode($alert->media, true); // array bana do
+        return $alert;
+    });                 
+               return view('public_user.welcome', compact('alerts'));
+    }
 
 
 public function allAlerts(Request $request)
@@ -55,11 +68,15 @@ public function allAlerts(Request $request)
         return $alert;
     });
 
+      // ✅ UNIQUE alert types nikaal lo database se
+    $alertTypes = PublicAlert::select('type')
+                    ->distinct()
+                    ->pluck('type');
     if ($request->ajax()) {
         return view('public_user.partials.alerts-cards', compact('alerts'))->render();
     }
 
-    return view('public_user.public-alerts', compact('alerts'));
+    return view('public_user.public-alerts', compact('alerts','alertTypes'));
 }
 
 

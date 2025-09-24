@@ -18,8 +18,8 @@
 @endif
   <!-- Main -->
   <main class="flex-grow bg-white">
-    <div class="container py-5">
-      <div class="mb-4 border-bottom pb-3">
+    <div class="container py-5 ">
+      <div class="mb-4 border-bottom pb-3 text-center">
         <h1 class="fs-2 fw-bold">File a New Complaint</h1>
         <p class="text-muted">Please provide the details of the incident below.</p>
       </div>
@@ -28,9 +28,9 @@
       <form action="{{ route('complaints.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
-        <div class="row g-4">
+        <div class="row g-4 shadow-sm">
           <!-- Left Column -->
-          <div class="col-md-6">
+          <div class="col-md-6 ">
             <div class="mb-3">
               <label for="subject" class="form-label">Subject</label>
               <input type="text" class="form-control" id="subject" name="subject"
@@ -96,15 +96,18 @@
 
 
 <!-- Submit -->
-<div class="text-end mt-4">
+<div class="text-end mt-0 mb-4">
           <button type="submit" class="btn btn-primary-custom text-white px-4 py-2">
-            {{-- <span class="material-symbols-outlined">send</span> --}}
+            <span class="material-symbols-outlined">send</span>
             Submit Complaint
           </button>
         </div>
       </form>
+    </div>
 
-      
+  @auth
+    
+  
     @if(isset($complaints) && $complaints->isNotEmpty())
 <div class="mt-5">
     <h3 class="fw-bold mb-3">Your Submitted Complaints</h3>
@@ -152,23 +155,26 @@
     </div>
 </div>
 @endif
-
+  @endauth  
 
     </div>
   </main>
 </div>
 @endsection
 
-                            <!-- ✅ JS for showing file names -->
-                            <script>
-                            document.getElementById('evidence').addEventListener('change', function(e){
-                                let fileList = document.getElementById('file-list');
-                                fileList.innerHTML = ""; // purane file names clear karo
-                            
-                                Array.from(e.target.files).forEach(file => {
-                                    let li = document.createElement('li');
-                                    li.textContent = file.name;
-                                    fileList.appendChild(li);
-                                });
-                            });
-                            </script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let evidenceInput = document.getElementById('evidence');
+    let fileList = document.getElementById('file-list');
+
+    evidenceInput.addEventListener('change', function(e){
+        fileList.innerHTML = ""; // old names clear
+
+        Array.from(e.target.files).forEach(file => {
+            let li = document.createElement('li');
+            li.textContent = file.name;
+            fileList.appendChild(li);
+        });
+    });
+});
+</script>

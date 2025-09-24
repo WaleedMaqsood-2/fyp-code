@@ -16,6 +16,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+use App\Http\Controllers\Admin\MediaController;
 
 
 
@@ -28,9 +29,14 @@ Route::resource('users', UserController::class);
 Route::get('manage-users', [UserController::class, 'index'])->name('manage.users');
 // AJAX user search for admin
 // Route::get('/admin/user-search', [UserController::class, 'ajaxUserSearch'])->name('admin.user.search');
-Route::get('manage-media', function () {
-    return view('admin.manage-media');
-})->name('manage.media');
+
+
+    // Media Management
+    Route::get('/media', [MediaController::class, 'index'])->name('manage.media');
+    Route::get('/media/search', [MediaController::class, 'search'])->name('media.search');
+
+
+
 Route::get('ai-feedback', function () {
     return view('admin.ai-feedback');
 })->name('ai.feedback');
@@ -123,9 +129,7 @@ Route::middleware('auth')->group(function () {
 
 
   //Public User Routes
-  Route::get('/Public/welcome', function () {
-    return view('public_user.welcome');
-  })->name('public.welcome');
+  Route::get('/Public/welcome',[ UserPublicAlerts::class,'welcomeIndex'])->name('public.welcome');
     Route::get('/Public/dashboard',[UserPublicAlerts::class, 'index'])
     ->name('public.dashboard');
 //     Route::get('/Public/complaints-form', function () {

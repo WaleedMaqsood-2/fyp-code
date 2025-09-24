@@ -18,10 +18,11 @@ class Media extends Model
 }
 protected $fillable = [
 		'user_id',
-		'file_path',
 		'file_type',
-		'file_size',
+		'file_path',
 		'description',
+		'status',
+		'uploaded_at',
 		'complaint_id'
 	];
 	/**
