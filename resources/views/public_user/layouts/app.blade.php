@@ -186,11 +186,29 @@
     <!-- Profile Dropdown Trigger -->
     <a class="d-flex align-items-center gap-2 text-decoration-none" 
        data-bs-toggle="dropdown" href="#" aria-expanded="false">
-        <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" 
+      
+             @if(!empty($user->profile_image))
+            {{-- Profile Image --}}
+  <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" 
              class="rounded-circle border shadow-sm" 
              style="width:42px; height:42px; object-fit:cover;" />
+        @else
+            {{-- Fallback: Initials --}}
+            @php
+                $nameParts = explode(' ', trim($user->name ?? ''));
+                $initials = strtoupper(substr($nameParts[0] ?? 'N', 0, 1));
+                if (count($nameParts) > 1) {
+                    $initials .= strtoupper(substr($nameParts[1], 0, 1));
+                }
+            @endphp
+            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" 
+                 style="width:40px; height:40px; font-weight:600; font-size:16px;">
+                {{ $initials }}
+            </div>
+        @endif
         <span class="fw-semibold text-primary d-none d-md-inline">{{ $user->name }}</span>
     </a>
+
 
     <!-- Dropdown -->
     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2">
@@ -199,9 +217,26 @@
     <div class="d-flex align-items-center text-start" style="max-width: 220px; margin:auto;">
         <!-- Profile Image -->
         <div class="d-flex justify-content-center align-items-center" style="width:80px;">
+
+                 @if(!empty($user->profile_image))
+            {{-- Profile Image --}}
             <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" 
                  class="rounded-circle border shadow-sm" 
                  style="width:70px; height:70px; object-fit:cover;" />
+        @else
+            {{-- Fallback: Initials --}}
+            @php
+                $nameParts = explode(' ', trim($user->name ?? ''));
+                $initials = strtoupper(substr($nameParts[0] ?? 'N', 0, 1));
+                if (count($nameParts) > 1) {
+                    $initials .= strtoupper(substr($nameParts[1], 0, 1));
+                }
+            @endphp
+            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" 
+                 style="width:70px; height:70px; font-weight:600; font-size:24px;">
+                {{ $initials }}
+            </div>
+        @endif
         </div>
 
         <!-- Name, Email & Button -->

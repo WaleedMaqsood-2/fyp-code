@@ -3,8 +3,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Complaint;
+use App\Models\RecentActivities;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ComplaintController extends Controller
 {
@@ -93,6 +95,11 @@ class ComplaintController extends Controller
         $complaint->assigned_to = $request->officer_id;
         $complaint->save();
 
+        RecentActivities::create([
+            'user_id' => Auth::id(),
+            'action'  => 'Complaint ' . $complaint->track_id . ' has been assigned to officer ' . optional($complaint->assignedTo)->name . '.',
+        ]);
+
         return redirect()->back()->with('success', 'Complaint assigned successfully.');
     }
 
@@ -106,6 +113,7 @@ class ComplaintController extends Controller
 
         if($complaint->status == 'received' ){
             if($request->status != 'under_review'){
+                
                 return redirect()->back()->with('error', 'Please assign the complaint before changing status.');
             }
                 $complaint->status = $request->status;
@@ -118,8 +126,15 @@ class ComplaintController extends Controller
 else{
             $complaint->status = $request->status;
             $complaint->save();
+
+            RecentActivities::create([
+                'user_id' => Auth::id(),
+                'action'  => 'Complaint ' . $complaint->track_id . ' status updated to ' . $complaint->status . '.',
+            ]);
+
             return redirect()->back()->with('success', 'Complaint status updated successfully.');
         }
+
        
     }
 
@@ -190,7 +205,10 @@ public function destroy($id)
 {
     $complaint = Complaint::findOrFail($id);
     $complaint->delete();
-
+ RecentActivities::create([
+        'user_id' => Auth::id(),
+        'action'  => 'Complaint ' . $complaint->track_id . ' has been deleted.',
+    ]);
     return redirect()->route('admin.complaints.index')->with('success', 'Complaint deleted successfully.');
 }
 

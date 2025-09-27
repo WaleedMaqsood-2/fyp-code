@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\RecentActivities;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +13,7 @@ class ProfileController extends Controller
 {
     public function update(Request $request)
     {
-        $user = \App\Models\User::find(Auth::id()); // logged in user as Eloquent model
+        $user = User::find(Auth::id()); // logged in user as Eloquent model
 
         // validate input
         $request->validate([
@@ -40,6 +42,11 @@ class ProfileController extends Controller
             $user->password = Hash::make($request->password);
         }
 
+             
+    RecentActivities::create([
+        'user_id' => Auth::id(),
+        'action'  => 'User '.$request->name.' update his profile',
+    ]);
         $user->save();
 
         return redirect()->back()->with('success', 'Profile updated successfully!');

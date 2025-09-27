@@ -314,7 +314,7 @@
   </div>
   <!-- End Navbar -->
 
-  
+  @include('partials.view-profile-model')
 @include('partials.profile-modal')
 
     <!-- User Search Modal -->

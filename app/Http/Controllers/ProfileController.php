@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\RecentActivities;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +55,10 @@ class ProfileController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
+RecentActivities::create([
+            'user_id' => Auth::id(),
+            'action'  => 'User '.$user->name.' deleted his account',
+        ]);
         return Redirect::to('/');
     }
 }

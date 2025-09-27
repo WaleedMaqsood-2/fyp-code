@@ -1,13 +1,4 @@
-  @if ($errors->any())
-        <div class="alert alert-danger">
-            {{ $errors->first() }}
-        </div>
-    @endif
-    @if (session('success'))
-    <div class="alert alert-success mt-2">
-        {{ session('success') }}
-    </div>
-@endif
+
 <div class="row">
   
   @if ($users->count())

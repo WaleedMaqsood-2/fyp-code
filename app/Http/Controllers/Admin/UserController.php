@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Media;
 use App\Models\AIFeedback;
 use App\Models\AnalyticsReport;
+use App\Models\RecentActivites;
+use App\Models\RecentActivities;
 
 class UserController extends Controller
 {
@@ -260,6 +262,10 @@ public function ajaxAISearch(Request $request)
             ]);
 
             $verifyUrl = route('verify.email', ['email' => $user->email]);
+RecentActivities::create([
+    'user_id' => Auth::id(),
+    'action' => 'New user '.$request->name.' added',
+]);
 
             \Illuminate\Support\Facades\Mail::send('auth.verify', ['user' => $user, 'otp' => $otp, 'verifyUrl' => $verifyUrl], function ($message) use ($user) {
             $message->to($user->email)
@@ -304,12 +310,20 @@ public function ajaxAISearch(Request $request)
             $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
         }
         $user->save();
+
+        
         return back()->with('success', 'User updated!');
     }
 
     public function destroy($id)
     {
-        \App\Models\User::findOrFail($id)->delete();
+         $user = User::findOrFail($id);
+    RecentActivities::create([
+        'user_id' => Auth::id(),
+        'action'  => 'User '.$user->name.' deleted',
+    ]);
+
+    $user->delete();
         return back()->with('success', 'User deleted!');
     }
 }

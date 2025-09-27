@@ -10,17 +10,17 @@ use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ComplaintTrackController;
 use App\Http\Controllers\UserPublicAlerts;
+use App\Http\Controllers\Admin\MediaController;
 
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-use App\Http\Controllers\Admin\MediaController;
 
 
 
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
 

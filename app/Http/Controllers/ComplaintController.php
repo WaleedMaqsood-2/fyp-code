@@ -3,7 +3,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Complaint;
 use App\Models\Media;
+use App\Models\RecentActivities;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class ComplaintController extends Controller
@@ -70,6 +72,10 @@ $userId = Auth::check() ? Auth::id() : null;
             
         ]);
 
+         RecentActivities::create([
+        'user_id' => Auth::id(),
+        'action'  => Auth::user()->name.' submit a new complaint.',
+    ]);
       // 2. Save media if multiple files uploaded
 if ($request->hasFile('evidence')) {
     foreach ($request->file('evidence') as $file) {
@@ -91,14 +97,20 @@ if ($request->hasFile('evidence')) {
                 $fileType = 'document'; // pdf, doc, docx, txt, xlsx etc.
             }
 
-            Media::create([
+            $media = Media::create([
                 'user_id'      => $userId,
                 'complaint_id' => $complaint->id,
                 'file_type'    => $fileType,
                 'file_path'    => $path,
                 'status'       => 'pending',
             ]);
+
+            RecentActivities::create([
+                'user_id' => Auth::id(),
+                'action'  => 'Media uploaded for ' . optional($media->complaint)->track_id . '.',
+            ]);
         }
+
     }
 }
 

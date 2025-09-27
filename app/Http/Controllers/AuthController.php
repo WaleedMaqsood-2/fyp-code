@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\RecentActivities;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -32,9 +33,29 @@ class AuthController extends Controller
             // user ko login kr
             Auth::login($user);
             if ($user->role_id == 1) {
+                RecentActivities::create([
+                    'user_id' => Auth::id(),
+                    'action'  => 'Admin '.$user->name.' logged in.',
+                ]);
                 return redirect()->route('dashboard')->with('success', 'Welcome '.$user->name);
             } else if ($user->role_id == 4) {
+                RecentActivities::create([
+                    'user_id' => Auth::id(),
+                    'action'  => 'Public User '.$user->name.' logged in.',
+                ]);
                 return redirect()->route('public.dashboard')->with('success', 'Welcome '.$user->name);
+            } else if ($user->role_id == 3) {
+                RecentActivities::create([
+                    'user_id' => Auth::id(),
+                    'action'  => 'Forensic Analyst '.$user->name.' logged in.',
+                ]);
+                return redirect()->route('forensic.dashboard')->with('success', 'Welcome '.$user->name);
+            } else if ($user->role_id == 2) {
+                RecentActivities::create([
+                    'user_id' => Auth::id(),
+                    'action'  => 'Police man '.$user->name.' logged in.',
+                ]);
+                return redirect()->route('police.dashboard')->with('success', 'Welcome '.$user->name);
             }
             else {
                 return redirect()->route('register')->with('success', 'Welcome '.$user->name);
@@ -45,7 +66,14 @@ class AuthController extends Controller
 
     public function logout()
     {
-        Auth::logout();
+       $user = Auth::user(); // pehle user ka data le lo
+
+RecentActivities::create([
+    'user_id' => $user->id,
+    'action'  => $user->name . ' logged out.',
+]);
+
+Auth::logout(); // ab safe hai
         return redirect()->route('login')->with('success', 'Logged out successfully.');
     }
 
@@ -115,6 +143,11 @@ $defaultRole = '4';
             // optional, if you also want to compare from session
         ]);
 
+
+         RecentActivities::create([
+            'user_id' => $user->id,
+            'action'  => 'New user '.$user->name.' registered.',
+        ]);
         // Redirect to verify page
         return redirect()->route('verify.email')->with('success', 'Signup successful! Please verify your email.');
     }
@@ -243,7 +276,10 @@ public function resend(Request $request)
         }
 
         $user->save();
-
+RecentActivities::create([
+            'user_id' => Auth::id(),
+            'action'  => 'User '.$request->name.' update his profile',
+        ]);
         return redirect()->back()->with('success', 'Profile updated successfully!');
     }
 
@@ -295,6 +331,10 @@ public function updateRole(Request $request, User $user)
         $message->to($adminuser->email)
             ->subject('User Role Changed - TS Developers');
     });
+    RecentActivities::create([
+        'user_id' => Auth::id(),
+        'action'  => 'User '.$user->name.' role changed to '.$user->role->name,
+    ]);
     return redirect()->back()->with('success', 'User role updated successfully! Emails sent.');
 }
 

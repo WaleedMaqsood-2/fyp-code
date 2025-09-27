@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PublicAlert;
+use App\Models\RecentActivities;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,7 +68,11 @@ public function index(Request $request)
     'user_id' =>Auth::id(), 
     // logged-in user
 ]);
-
+     
+    RecentActivities::create([
+        'user_id' => Auth::id(),
+        'action'  => 'New alert created',
+    ]);
 
     return redirect()->back()->with('success', 'Public Alert created successfully!');
 }
@@ -118,8 +123,11 @@ public function update(Request $request, $id)
     public function destroy($id)
     {
         $alert = PublicAlert::findOrFail($id);
+            RecentActivities::create([
+                'user_id' => Auth::id(),
+                'action'  => 'Alert has id '.$id.' deleted',
+            ]);
         $alert->delete();
-
         return redirect()->back()->with('success', 'Alert deleted successfully.');
     }
 }

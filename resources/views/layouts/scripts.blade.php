@@ -51,7 +51,7 @@
 <!-- Kaiadmin JS -->
 <script src="{{ asset('assets/js/kaiadmin.min.js') }}"></script>
 
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
  {{-- <script>
       $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
         type: "line",
