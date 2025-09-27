@@ -155,6 +155,33 @@ $defaultRole = '4';
     }
 
 
+public function resend(Request $request)
+{
+    // Find existing user by email
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json(['success' => false, 'message' => 'User not found.']);
+    }
+
+    // Generate new OTP
+    $otp = rand(100000, 999999);
+    $user->otp = $otp;
+    $user->otp_expires_at = now()->addMinutes(10);
+    $user->save();
+
+    // Send OTP email
+    Mail::raw("Your OTP for email verification is: {$otp}. It will expire in 10 minutes.", function ($message) use ($user) {
+        $message->to($user->email)
+                ->subject('Verify Your Email - TS Developers');
+    });
+
+    // Update session
+    session(['email' => $user->email]);
+
+    // Return JSON
+    return response()->json(['success' => true, 'message' => 'OTP sent successfully.']);
+}
 
 
     

@@ -33,4 +33,5 @@ protected $fillable = [
 	{
 		return self::count();
 	}
+	
 }

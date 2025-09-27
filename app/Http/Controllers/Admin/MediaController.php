@@ -2,30 +2,74 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Media;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller
 {
     public function index()
     {
         // Sare media files database se lao
-        $media = Media::latest()->paginate(10); // paginate 10 items
+      
+        $media = \App\Models\Media::paginate(5);
+foreach ($media as $file) {
+    $absolutePath = Storage::disk('public')->path($file->file_path);
+
+    $file->size = file_exists($absolutePath) 
+        ? filesize($absolutePath) 
+        : 0;
+}
+
+
         return view('admin.manage-media   ', compact('media'));
     }
 
-    public function search(Request $request)
-    {
-        $query = $request->input('q');
 
-        $media = Media::where('description', 'like', "%$query%")
-            ->orWhere('file_type', 'like', "%$query%")
-            ->orWhere('complaint_id', 'like', "%$query%")
-            ->latest()
-            ->get();
+// 🔎 Search API
+public function search(Request $request)
+{
+    $query = $request->q;
 
-        return response()->json([
-            'media' => $media
-        ]);
+    $media = Media::with('complaint')
+        ->where('file_path', 'LIKE', "%$query%")
+        ->orWhere('description','LIKE',"%$query%")
+        ->orWhereHas('complaint', function ($q) use ($query) {
+            $q->where('track_id', 'LIKE', "%$query%");
+        })
+        ->get();
+
+    $html = view('admin.partials.media-search', compact('media'))->render();
+
+    return response()->json(['html' => $html]);
+}
+
+
+// 🔄 Update Status
+public function updateStatus(Request $request, $id)
+{
+    $request->validate(['status' => 'required|in:pending,approved,rejected']);
+
+    $media = Media::findOrFail($id);
+    $media->status = $request->status;
+    $media->save();
+
+    return back()->with('success', 'Status updated successfully!');
+}
+
+// ❌ Delete File
+public function destroy($id)
+{
+    $media = Media::findOrFail($id);
+
+    // Delete actual file from storage
+    if (Storage::exists($media->file_path)) {
+        Storage::delete($media->file_path);
     }
+
+    $media->delete();
+
+    return back()->with('success', 'Media deleted successfully!');
+}
+
 }

@@ -34,6 +34,9 @@ Route::get('manage-users', [UserController::class, 'index'])->name('manage.users
     // Media Management
     Route::get('/media', [MediaController::class, 'index'])->name('manage.media');
     Route::get('/media/search', [MediaController::class, 'search'])->name('media.search');
+    Route::patch('/media/{id}/status', [MediaController::class, 'updateStatus'])->name('media.updateStatus');
+Route::delete('/media/{id}', [MediaController::class, 'destroy'])->name('media.destroy');
+
 
 
 
@@ -112,6 +115,7 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::get('/verify', [AuthController::class, 'showVerifyForm'])->name('verify.email');
 Route::post('/verify', [AuthController::class, 'verifyOtp'])->name('verify.email.submit');
+Route::post('/resend-otp', [AuthController::class, 'resend'])->name('resend.otp');
 
 
 Route::middleware('auth')->group(function () {
