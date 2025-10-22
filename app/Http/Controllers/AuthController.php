@@ -38,26 +38,26 @@ class AuthController extends Controller
                     'action'  => 'Admin '.$user->name.' logged in.',
                 ]);
                 return redirect()->route('dashboard')->with('success', 'Welcome '.$user->name);
-            } else if ($user->role_id == 4) {
+            }  else if ($user->role_id == 2) {
                 RecentActivities::create([
                     'user_id' => Auth::id(),
-                    'action'  => 'Public User '.$user->name.' logged in.',
+                    'action'  => 'Police man '.$user->name.' logged in.',
                 ]);
-                return redirect()->route('public.dashboard')->with('success', 'Welcome '.$user->name);
+                return redirect()->route('police.dashboard')->with('success', 'Welcome '.$user->name);
             } else if ($user->role_id == 3) {
                 RecentActivities::create([
                     'user_id' => Auth::id(),
                     'action'  => 'Forensic Analyst '.$user->name.' logged in.',
                 ]);
                 return redirect()->route('forensic.dashboard')->with('success', 'Welcome '.$user->name);
-            } else if ($user->role_id == 2) {
+            } else if ($user->role_id == 4) {
                 RecentActivities::create([
                     'user_id' => Auth::id(),
-                    'action'  => 'Police man '.$user->name.' logged in.',
+                    'action'  => 'Public User '.$user->name.' logged in.',
                 ]);
-                return redirect()->route('police.dashboard')->with('success', 'Welcome '.$user->name);
+                return redirect()->route('public.dashboard')->with('success', 'Welcome '.$user->name);
             }
-            else {
+                else {
                 return redirect()->route('register')->with('success', 'Welcome '.$user->name);
             }
         }

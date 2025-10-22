@@ -161,3 +161,21 @@ Route::delete('/complaints/{id}/hide', [ComplaintController::class, 'hide'])->na
 
 
 // routes/web.php
+
+
+//police officer routes
+Route::get('police/dashboard',function(){
+    return view('police.dashboard');
+})->name('police.dashboard');
+Route::get('police/add-fir',function(){
+    return view('police.add-fir');
+})->name('police.add-fir');
+Route::get('police/complaint-management',function(){
+    return view('police.complaint-management');
+})->name('police.complaint-management');
+Route::get('police/ai-tools',function(){
+    return view('police.ai-tools');
+})->name('police.ai-tools');
+Route::get('police/manage-evidence',function(){
+    return view('police.manage-evidence');
+})->name('police.manage-evidence');
