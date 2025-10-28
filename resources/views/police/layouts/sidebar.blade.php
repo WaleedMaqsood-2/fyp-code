@@ -18,9 +18,10 @@
           <a href="{{ route('police.upload-evidence') }}" class="nav-link d-flex align-items-center gap-2 {{ request()->routeIs('police.upload-evidence') ? 'active text-primary fw-bold' : 'text-body' }}">
             <span class="material-symbols-outlined">photo_library</span> Upload Evidence
           </a>
+          <a href="{{ route('police.forward-case') }}" class="nav-link d-flex align-items-center gap-2 {{ request()->routeIs('police.forward-case') ? 'active text-primary fw-bold' : 'text-body' }}">
+            <span class="material-symbols-outlined">forward</span> Forward Case
+          </a>
          
-          
-
   </nav>
 
   <div class="d-flex flex-column gap-2">

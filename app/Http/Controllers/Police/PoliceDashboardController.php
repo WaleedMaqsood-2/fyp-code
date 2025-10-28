@@ -69,6 +69,6 @@ class PoliceDashboardController extends Controller
             'note' => $request->note,
         ]);
 
-        return redirect()->route('police.dashboard')->with('success', 'Case updated successfully.');
+        return redirect()->back()->with('success', 'Case updated successfully.');
     }
 }

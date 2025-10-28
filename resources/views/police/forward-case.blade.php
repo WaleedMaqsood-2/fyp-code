@@ -1,46 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forward Case to Forensic Analyst - Police Module</title>
-<link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<style>
-body {
-  background-color: #f5f7fa;
-}
-.card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-.table thead {
-  background: #0d6efd;
-  color: #fff;
-}
-.modal-content {
-  border-radius: 12px;
-}
-.status-badge {
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-}
-.status-pending {
-  background: #fff3cd;
-  color: #856404;
-}
-.status-progress {
-  background: #cfe2ff;
-  color: #084298;
-}
-.status-complete {
-  background: #d1e7dd;
-  color: #0f5132;
-}
-</style>
-</head>
-<body>
+@extends('police.layouts.main')
+@section('title','Forward Case to Forensic Analyst - Police Module')
+<link rel="stylesheet" href="{{ asset('css/police/forward-case.css') }}">
+
+@section('content')
 
 <div class="container py-5">
   <h2 class="fw-bold text-primary mb-4">Forward Case to Forensic Analyst</h2>
@@ -157,7 +119,5 @@ body {
     </div>
   </div>
 </div>
+@endsection
 
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-</body>
-</html>

@@ -1,0 +1,27 @@
+
+body {
+  background-color: #f5f7fa;
+}
+.card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+.status-pending { background: #fff3cd; color: #856404; }
+.status-investigating { background: #cfe2ff; color: #084298; }
+.status-resolved { background: #d1e7dd; color: #0f5132; }
+audio {
+  width: 100%;
+  outline: none;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}

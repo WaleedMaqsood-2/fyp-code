@@ -2,7 +2,10 @@
 @section('title', 'File FIR - Police Module')
 <link rel="stylesheet" href="{{ asset('css/police/add-fir.css') }}">
 @section('content')
-<div class="container py-4">
+<div class="container">
+  <div class="shadow-sm rounded px-4 py-2">
+
+
   @if(session('success'))
   <div class="alert alert-success">{{ session('success') }}</div>
 @endif
@@ -121,7 +124,7 @@
     </div>
   </div>
 </form>
-
+  </div>
 </div>
 @endsection
 @push('scripts')

@@ -14,8 +14,9 @@ class Media extends Model
 	}
 	public function complaint()
 {
-    return $this->belongsTo(Complaint::class);
+    return $this->belongsTo(Complaint::class, 'complaint_id');
 }
+
 protected $fillable = [
 		'user_id',
 		'file_type',
