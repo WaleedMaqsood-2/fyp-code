@@ -151,6 +151,16 @@
                         @empty
                             <p class="text-muted">No evidence attached.</p>
                         @endforelse
+                         @if(!empty($complaint->audio_file))
+        <div class="col-12 mt-3">
+          <h6 class="fw-bold mb-2">Audio Evidence:</h6>
+          <audio controls class="w-100">
+            <source src="{{ asset('storage/'.$complaint->audio_file) }}" type="audio/{{ pathinfo($complaint->audio_file, PATHINFO_EXTENSION) }}">
+            Your browser does not support the audio element.
+          </audio>
+          <small class="text-muted d-block mt-1">{{ basename($complaint->audio_file) }}</small>
+        </div>
+      @endif
                     </div>
                 </div>
             </div>

@@ -14,7 +14,8 @@
     <span class="material-symbols-outlined fs-4">notifications</span>
     <span id="themeToggle" class="material-symbols-outlined dark-toggle">dark_mode</span>
 
-@if($user)
+   @if($user)
+ {{-- @include('partials.profile-dropdown') --}}
     <!-- Profile Dropdown Trigger -->
     <a class="d-flex align-items-center gap-2 text-decoration-none" 
        data-bs-toggle="dropdown" href="#" aria-expanded="false">
@@ -80,19 +81,23 @@
                 {{ $user->email }}
             </small>
             <div class="mt-2">
-                <button type="button" style="font-size: 12px" class="btn btn-sm btn-primary px-2 " data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                    <i class="fas fa-user-edit"></i> Edit Profile
-                </button>
+               <button type="button" class="btn btn-sm btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fas fa-user-edit"></i> Edit Profile
+                    </button>
             </div>
         </div>
     </div>
 </li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewProfileModal{{ $user->id }}"><i class="fas fa-user me-1"></i> My Profile</a></li>
-        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
+         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewProfileModal{{ $user->id }}"><i class="fas fa-user me-1"></i> My Profile</a></li>
+       <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
     </ul>
     @endif
 </div>
 </header>
+
+@include('partials.edit-profile-modal')
+@include('partials.view-profile-model')
+

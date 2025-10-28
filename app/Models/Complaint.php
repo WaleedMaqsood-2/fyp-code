@@ -11,17 +11,20 @@ class Complaint extends Model
 
     // ✅ Add these fields to allow mass assignment
     protected $fillable = [
+        'track_id',
         'user_id',
         'subject',
         'description',
         'location',
         'incident_type',
+        'incident_datetime',
         'severity',
+        'note' , 
+        'audio_file',
+        'transcription',
         'status',
-        'track_id',
+        'is_visible_to_user',
         'assigned_to',
-        'note'  // New field for admin notes
-        
     ];
 
     // Optional: relationship to User

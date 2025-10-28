@@ -32,6 +32,8 @@
  @include('police.layouts.footer')
 
   @include('police.layouts.scripts')
+  @stack('scripts')
 
 </body>
 </html>
+

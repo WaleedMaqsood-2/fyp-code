@@ -272,7 +272,7 @@
 
 </header>
 @endif
-@include('partials.profile-modal')
+@include('partials.edit-profile-modal')
 @include('partials.view-profile-model')
 @endauth
 @endif

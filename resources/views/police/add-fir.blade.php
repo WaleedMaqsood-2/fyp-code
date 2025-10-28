@@ -1,40 +1,214 @@
 @extends('police.layouts.main')
-<style>
-body {
-  background: #f5f7fa;
-}
-.page-header {
-  border-bottom: 2px solid #dee2e6;
-  margin-bottom: 1.5rem;
-}
-.record-btn {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  font-size: 1.5rem;
-  transition: background 0.3s;
-}
-.record-btn.recording {
-  background-color: #198754;
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(25,135,84,0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(25,135,84,0); }
-  100% { box-shadow: 0 0 0 0 rgba(25,135,84,0); }
-}
-</style>
 @section('title', 'File FIR - Police Module')
+<link rel="stylesheet" href="{{ asset('css/police/add-fir.css') }}">
 @section('content')
 <div class="container py-4">
+  @if(session('success'))
+  <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+@if ($errors->any())
+  <div class="alert alert-danger">
+    <ul class="mb-0">
+      @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+      @endforeach
+    </ul>
+  </div>
+@endif
+
   <div class="page-header">
     <h2 class="fw-bold text-primary">File New FIR</h2>
     <p class="text-muted">Manually enter FIR details or record a voice complaint for AI transcription.</p>
   </div>
 
+
+  <form id="firForm" method="POST" action="{{ route('police.store_fir') }}" enctype="multipart/form-data">
+  @csrf
+  <div class="row g-4">
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Complaint Subject</label>
+      <input type="text" name="subject" class="form-control" placeholder="Enter complaint subject" required>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Select Severity</label>
+      <select class="form-select" name="severity" id="severity" required>
+        <option value="">Select severity</option>
+        <option>Low</option>
+        <option>Medium</option>
+        <option>High</option>
+      </select>
+    </div>
+
+
+   <div class="col-md-6">
+  <label class="form-label fw-semibold">Incident Type</label>
+  <select name="incident_type" class="form-select" required>
+    <option value="" selected disabled>-- Select Incident Type --</option>
+    @foreach ($incidentTypes as $type)
+        <option value="{{ $type }}">{{ $type }}</option>
+    @endforeach
+  </select>
+</div>
+
+
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Location</label>
+      <input type="text" name="location" class="form-control" placeholder="Enter location or area">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Incident Description</label>
+      <textarea name="description" class="form-control" rows="4"  placeholder="Describe the incident in detail" required></textarea>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Date & Time of Incident</label>
+      <input type="datetime-local" name="incident_datetime" class="form-control">
+    </div>
+
+    <div class="col-12">
+  <label class="form-label fw-semibold">Voice Recording (Optional)</label>
+  <div class="card p-3">
+    <div class="d-flex align-items-center gap-3">
+      <button type="button" id="recordBtn" class="record-btn">
+        <i class="bi bi-mic-fill"></i>
+      </button>
+      <div>
+        <p class="mb-1 fw-semibold" id="recordStatus">Click to start recording</p>
+        <audio id="audioPlayback" controls class="d-none mt-2"></audio>
+      </div>
+      <button type="button" id="transcribeBtn" class="btn btn-outline-primary ms-auto" disabled>
+        <i class="bi bi-robot"></i> Transcribe (AI)
+      </button>
+    </div>
+  </div>
+  
+  <!-- Hidden input to hold recorded audio blob -->
+  <input type="file" name="audio_file" id="audioFileInput" class="d-none" accept="audio/*">
+  
+  <textarea id="transcribedText" name="transcribedText" class="form-control mt-3" rows="3" placeholder="AI transcription will appear here..."></textarea>
+</div>
+
+
+    {{-- <div class="col-12">
+      <label class="form-label fw-semibold">Upload Evidence Files (Optional)</label>
+      <input type="file" name="evidence_files[]" class="form-control" multiple accept="image/*,video/*,audio/*,.pdf,.docx">
+    </div> --}}
+
+    <!-- ✅ Upload Evidence Section -->
+<div class="col-md-6">
+  <label class="form-label">Upload Evidence</label>
+  <div class="upload-box text-center p-4 border rounded">
+    <span class="material-symbols-outlined fs-1 text-secondary">upload_file</span>
+    <div class="mt-2">
+      <!-- Custom Upload Button -->
+      <label for="evidence" class="btn btn-link text-decoration-none text-primary fw-bold">
+        Upload files
+      </label>
+      <input type="file" id="evidence" name="evidence[]" class="d-none" multiple>
+      <span class="text-muted">or drag and drop</span>
+    </div>
+    <p class="small text-muted mt-1">Size up to 10MB each</p>
+
+    <!-- ✅ Selected file names will appear here -->
+    <ul id="file-list" class="list-unstyled mt-2 text-start small text-success"></ul>
+  </div>
+</div>
+
+    <div class="col-12 text-end">
+      
+      <button type="submit" class="btn btn-primary px-4">Submit FIR</button>
+    </div>
+  </div>
+</form>
+
+</div>
+@endsection
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  let mediaRecorder, audioChunks = [];
+
+  const recordBtn = document.getElementById('recordBtn');
+  const recordStatus = document.getElementById('recordStatus');
+  const audioPlayback = document.getElementById('audioPlayback');
+  const transcribeBtn = document.getElementById('transcribeBtn');
+  const audioFileInput = document.getElementById('audioFileInput');
+
+  recordBtn.addEventListener('click', async () => {
+    if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          audioPlayback.src = audioUrl;
+          audioPlayback.classList.remove('d-none');
+          transcribeBtn.disabled = false;
+
+          // Convert blob to File and attach to hidden input
+          const audioFile = new File([audioBlob], "recording_" + Date.now() + ".webm", { type: "audio/webm" });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(audioFile);
+          audioFileInput.files = dataTransfer.files;
+        };
+
+        mediaRecorder.start();
+        recordBtn.classList.add('recording');
+        recordStatus.innerText = 'Recording... Click again to stop.';
+      } catch (err) {
+        Swal.fire('Error', 'Microphone access denied!', 'error');
+      }
+    } else {
+      mediaRecorder.stop();
+      recordBtn.classList.remove('recording');
+      recordStatus.innerText = 'Recording stopped. You can play or transcribe.';
+    }
+  });
+
+  // AI Transcription Mock
+  transcribeBtn.addEventListener('click', () => {
+    Swal.fire({
+      title: 'Processing Audio...',
+      text: 'Using AI to transcribe complaint (Whisper)',
+      timer: 2000,
+      didOpen: () => Swal.showLoading()
+    }).then(() => {
+      document.getElementById('transcribedText').value =
+        "This is a sample transcription generated by the AI model (Whisper).";
+    });
+  });
+});
+</script>
+
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let evidenceInput = document.getElementById('evidence');
+    let fileList = document.getElementById('file-list');
+
+    evidenceInput.addEventListener('change', function(e){
+        fileList.innerHTML = ""; // old names clear
+
+        Array.from(e.target.files).forEach(file => {
+          let li = document.createElement('li');
+          li.textContent = file.name;
+          fileList.appendChild(li);
+        });
+      });
+    });
+  </script>
+
+@endpush
+{{-- 
   <form id="firForm">
     <div class="row g-4">
       <div class="col-md-6">
@@ -99,63 +273,4 @@ body {
         <button type="submit" class="btn btn-primary px-4">Submit FIR</button>
       </div>
     </div>
-  </form>
-</div>
-@endsection
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.js"></script>
-<script>
-let mediaRecorder, audioChunks = [];
-
-const recordBtn = document.getElementById('recordBtn');
-const recordStatus = document.getElementById('recordStatus');
-const audioPlayback = document.getElementById('audioPlayback');
-const transcribeBtn = document.getElementById('transcribeBtn');
-
-recordBtn.addEventListener('click', async () => {
-  if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        audioPlayback.src = audioUrl;
-        audioPlayback.classList.remove('d-none');
-        transcribeBtn.disabled = false;
-      };
-      mediaRecorder.start();
-      recordBtn.classList.add('recording');
-      recordStatus.innerText = 'Recording... Click again to stop.';
-    } catch (err) {
-      Swal.fire('Error', 'Microphone access denied!', 'error');
-    }
-  } else {
-    mediaRecorder.stop();
-    recordBtn.classList.remove('recording');
-    recordStatus.innerText = 'Recording stopped. You can play or transcribe.';
-  }
-});
-
-// Mock AI Transcription (frontend only)
-transcribeBtn.addEventListener('click', () => {
-  Swal.fire({
-    title: 'Processing Audio...',
-    text: 'Using AI to transcribe complaint (Whisper)',
-    timer: 2000,
-    didOpen: () => Swal.showLoading()
-  }).then(() => {
-    document.getElementById('transcribedText').value =
-      "This is a sample transcription generated by the AI model (Whisper).";
-  });
-});
-
-// Submit FIR mock
-document.getElementById('firForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  Swal.fire('Success', 'FIR filed successfully!', 'success');
-});
-</script>
-</body>
-</html>
+  </form> --}}

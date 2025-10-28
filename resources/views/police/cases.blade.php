@@ -39,7 +39,7 @@ audio {
           </select>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Date Range</label>
+          <label class="form-label">Date</label>
           <input type="date" class="form-control">
         </div>
         <div class="col-md-3">

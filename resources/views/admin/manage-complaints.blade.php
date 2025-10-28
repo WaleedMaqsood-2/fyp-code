@@ -73,7 +73,6 @@
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Tracking ID</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Complaint By</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Date</th>
-                        <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Complainant</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Type</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Status</th>
                         <th style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left;">Assigned To</th>
@@ -87,7 +86,7 @@
                         <td style="padding: 10px;">{{ $complaint->track_id }}</td>
                         <td style="padding: 10px;">{{ $complaint->user?->name ?? 'N/A' }}</td>
                         <td style="padding: 10px;">{{ $complaint->created_at->format('Y-m-d') }}</td>
-                        <td style="padding: 10px;">{{ $complaint->user?->name ?? 'N/A' }}</td>
+                        
                         <td style="padding: 10px;">{{ $complaint->incident_type ?? '-' }}</td>
                         <td style="padding: 10px;">
                             <span style="padding: 2px 6px; border-radius: 12px; font-size: 12px; color: #fff; 

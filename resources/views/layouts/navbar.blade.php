@@ -23,39 +23,6 @@
     <!-- Navbar Header -->
     <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom me-2">
       <div class="container-fluid">
-        <!-- Admin User Search Bar -->
-        {{-- <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex ">
-          <div class="input-group ms-4">
-            <input type="text" id="main-search" placeholder="@yield('search_placeholder', 'Search...')" class="form-control" autocomplete="off" />
-            <div class="input-group-prepend">
-              <button type="button" class="btn btn-search pe-1" id="search-btn">
-                <i class="fa fa-search search-icon"></i>
-              </button>
-            </div>
-            <div id="search-suggestions" class="mt-5 dropdown-menu" style="display:none; position:absolute; z-index:1000; width:100%"></div>
-          </div>
-        </nav> --}}
-
-
-        {{-- <form id="globalSearchForm" 
-      action="{{ $searchAction ?? '#' }}" 
-      method="GET" 
-      class="d-flex position-relative">
-
-    <input class="form-control me-2" 
-           type="search" 
-           placeholder="{{ $searchPlaceholder ?? 'Search...' }}" 
-           name="q" 
-           id="globalSearchInput" 
-           autocomplete="off">
-
-    <button class="btn btn-outline-success" type="submit">Search</button>
-</form> --}}
-
-<!-- Suggestions list -->
-{{-- <ul id="suggestions" class="list-group position-absolute w-100" style="z-index: 1000;"></ul> --}}
-        <!-- End Admin User Search Bar -->
-
 
 <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex ">
           <div class="input-group ms-4">
@@ -212,110 +179,21 @@
           @php
             $user =Auth::user();
           @endphp
- 
 <li class="nav-item topbar-user dropdown hidden-caret">
   @include('partials.profile-dropdown')
-    {{-- @if($user)
-        <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-            <div class="avatar-sm">
-                <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
-            </div>
-            <span class="profile-username">
-                <span class="op-7">{{ $user->name }}</span>
-            </span>
-        </a>
-        <ul class="dropdown-menu dropdown-user animated fadeIn">
-            <div class="dropdown-user-scroll scrollbar-outer">
-                <li>
-                    <div class="user-box">
-                        <div class="avatar-lg">
-                            <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
-                        </div>
-                        <div class="u-text">
-                            <h4>{{ $user->name }}</h4>
-                            <p class="text-muted">{{ $user->email }}</p>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                                <i class="fas fa-user-edit"></i> Edit Profile
-                            </button>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">My Profile</a>
-                    <a class="dropdown-item" href="#">Account Setting</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('logout') }}">Logout</a>
-                </li>
-            </div>
-        </ul>
-    @else
-        <a class="btn btn-primary" href="{{ route('login') }}">Login</a>
-        <a class="btn btn-secondary ms-2" href="{{ route('register') }}">Register</a>
-    @endif --}}
-</li>
+    </li>
 
-<!-- Profile Edit Modal -->
-{{-- <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Name</label>
-                        <input type="text" name="name" value="{{ $user->name }}" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Email</label>
-                        <input type="email" name="email" value="{{ $user->email }}" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Password (leave blank if not changing)</label>
-                        <input type="password" name="password" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label>Confirm Password</label>
-                        <input type="password" name="password_confirmation" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label>CNIC</label>
-                        <input type="text" name="cnic" value="{{ $user->cnic }}" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label>Contact Number</label>
-                        <input type="text" name="contact_number" value="{{ $user->contact_number }}" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label>Profile Image</label>
-                        <input type="file" name="profile_image" class="form-control">
-                        @if($user->profile_image)
-                            <img src="{{ asset('storage/' . $user->profile_image) }}" alt="Profile Image" class="img-thumbnail mt-2" width="100">
-                        @endif
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Update Profile</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div> --}}
+
 
       
         </ul>
+        
       </div>
     </nav>
+    
   </div>
   <!-- End Navbar -->
 
-  @include('partials.view-profile-model')
-@include('partials.profile-modal')
 
     <!-- User Search Modal -->
         <div class="modal fade" id="userSearchModal" tabindex="-1" aria-labelledby="userSearchModalLabel" aria-hidden="true">
@@ -333,3 +211,6 @@
         </div>
 
        
+        @include('partials.edit-profile-modal')
+        @include('partials.view-profile-model')
+     

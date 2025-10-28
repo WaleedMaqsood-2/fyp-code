@@ -1,16 +1,23 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Models\User;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
+use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\PublicAlertController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ComplaintTrackController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Police\AddFIRController;
+use App\Http\Controllers\Police\PoliceDashboardController;
+use App\Http\Controllers\ProfileController;
+
 use App\Http\Controllers\UserPublicAlerts;
-use App\Http\Controllers\Admin\MediaController;
+use App\Models\User;
+use Illuminate\Support\Facades\Route;
+
+
+
 
 
 Route::get('/', function () {
@@ -164,18 +171,26 @@ Route::delete('/complaints/{id}/hide', [ComplaintController::class, 'hide'])->na
 
 
 //police officer routes
-Route::get('police/dashboard',function(){
-    return view('police.dashboard');
-})->name('police.dashboard');
-Route::get('police/add-fir',function(){
-    return view('police.add-fir');
-})->name('police.add-fir');
-Route::get('police/complaint-management',function(){
-    return view('police.complaint-management');
-})->name('police.complaint-management');
+
+// Route::get('police/add-fir',function(){
+//     return view('police.add-fir');
+// })->name('police.add-fir');
+Route::get('police/cases',function(){
+    return view('police.cases');
+})->name('police.cases');
 Route::get('police/ai-tools',function(){
     return view('police.ai-tools');
 })->name('police.ai-tools');
 Route::get('police/manage-evidence',function(){
     return view('police.manage-evidence');
-})->name('police.manage-evidence');
+})->name('police.upload-evidence');
+
+
+
+
+    Route::get('/police/dashboard', [PoliceDashboardController::class, 'index'])->name('police.dashboard');
+
+Route::put('/police/cases/{id}', [PoliceDashboardController::class, 'update'])->name('police.cases.update');
+    
+Route::get('/add-fir', [AddFIRController::class, 'create'])->name('police.add-fir');
+    Route::post('/add-fir', [AddFIRController::class, 'store'])->name('police.store_fir');
