@@ -21,6 +21,7 @@
         <ul class="navbar-nav mx-auto">
           <li class="nav-item  "><a class="nav-link fw-medium mx-lg-4 {{ Route::is('public.welcome') ? 'active' : '' }}" href="{{ route('public.welcome') }}">Home</a></li>
           <li class="nav-item  "><a class="nav-link fw-medium mx-lg-4 {{ Route::is('public.complaints.form') ? 'active' : '' }}" href="{{ route('public.complaints.form') }}">Complaints</a></li>
+          <li class="nav-item  "><a class="nav-link fw-medium mx-lg-4 {{ Route::is('public.complaints.track') ? 'active' : '' }}" href="{{ route('public.complaints.track') }}">Track Complaints</a></li>
           <li class="nav-item  "><a class="nav-link fw-medium mx-lg-4 {{ Route::is('public.alerts') ? 'active' : '' }}" href="{{ route('public.alerts') }}">Alerts</a></li>
         </ul>
         <div class="d-flex gap-2">

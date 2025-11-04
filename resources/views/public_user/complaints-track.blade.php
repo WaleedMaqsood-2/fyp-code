@@ -117,7 +117,21 @@
         <small class="text-muted">{{ $complaint->created_at->format('F d, Y') }}</small>
       </li>
 
-      {{-- Step 2: Under Review --}}
+      {{-- Step 2: Investigation Assigned --}}
+      <li class="timeline-item">
+        <span class="timeline-icon {{ $complaint->assigned_to ? '' : 'gray' }}">
+          <span class="material-symbols-outlined">person</span>
+        </span>
+        @if ($complaint->assigned_to)
+          <p class="fw-bold mb-1">Investigation Assigned</p>
+          <small class="text-muted">Assigned to {{ $complaint->user->name }}</small>
+        @else
+          <p class="text-muted mb-1">Investigation Assigned</p>
+          <small class="text-muted">Not Assigned Yet (Upcoming)</small>
+        @endif
+      </li>
+
+{{-- Step 3: Under Review --}}
       <li class="timeline-item">
         <span class="timeline-icon {{ in_array($complaint->status, ['under_review','resolved']) ? '' : 'gray' }}">
           <span class="material-symbols-outlined">search</span>
@@ -133,21 +147,7 @@
           <small class="text-muted">Pending Review</small>
         @endif
       </li>
-
-      {{-- Step 3: Investigation Assigned --}}
-      <li class="timeline-item">
-        <span class="timeline-icon {{ $complaint->assigned_to ? '' : 'gray' }}">
-          <span class="material-symbols-outlined">person</span>
-        </span>
-        @if ($complaint->assigned_to)
-          <p class="fw-bold mb-1">Investigation Assigned</p>
-          <small class="text-muted">Assigned to {{ $complaint->user->name }}</small>
-        @else
-          <p class="text-muted mb-1">Investigation Assigned</p>
-          <small class="text-muted">Not Assigned Yet (Upcoming)</small>
-        @endif
-      </li>
-
+      
       {{-- Step 4: Final Status --}}
       <li class="timeline-item">
         <span class="timeline-icon {{ $complaint->status == 'resolved' ? '' : 'gray' }}">
@@ -156,9 +156,9 @@
         @if ($complaint->status == 'resolved')
           <p class="fw-bold mb-1">Status: Resolved</p>
           <small class="text-muted">Resolved at {{ $complaint->updated_at->format('F d, Y') }}</small>
-        @elseif ($complaint->status == 'under_review')
+        {{-- @elseif ($complaint->status == 'under_review')
           <p class="fw-bold mb-1">Status: Under Review</p>
-          <small class="text-muted">{{ $complaint->updated_at->format('F d, Y') }}</small>
+          <small class="text-muted">{{ $complaint->updated_at->format('F d, Y') }}</small> --}}
         @else
           <p class="text-muted mb-1">Status</p>
           <small class="text-muted">Not Resolved Yet</small>

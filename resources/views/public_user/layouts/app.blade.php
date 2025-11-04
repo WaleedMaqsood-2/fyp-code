@@ -56,6 +56,9 @@
               <a href="{{ route('public.complaints.form') }}" class="nav-link {{ Route::is('public.complaints.form') ? 'active' : '' }}" >Complaints</a>
             </li>
             <li class="nav-item">
+              <a href="{{ route('public.complaints.track') }}" class="nav-link {{ Route::is('public.complaints.track') ? 'active' : '' }}" >Track Complaints</a>
+            </li>
+              <li class="nav-item">
               <a href="{{ route('public.alerts') }}" class="nav-link {{ Route::is('public.alerts') ? 'active' : '' }}" >Alerts</a>
             </li>
           </ul>

@@ -207,3 +207,7 @@ Route::put('/police/cases/{id}/update', [App\Http\Controllers\Police\ComplaintCo
     Route::get('/evidence', [EvidenceController::class, 'index'])->name('police.upload-evidence');
     Route::post('/evidence/upload', [EvidenceController::class, 'store'])->name('police.evidence.store');
     Route::delete('/evidence/{id}', [EvidenceController::class, 'destroy'])->name('police.evidence.destroy');
+
+
+        Route::get('/forward-case', [App\Http\Controllers\Police\ForwardCaseController::class, 'index'])->name('police.forward.index');
+    Route::post('/forward-case', [App\Http\Controllers\Police\ForwardCaseController::class, 'forward'])->name('police.forward.case');

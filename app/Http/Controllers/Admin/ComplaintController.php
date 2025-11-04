@@ -88,10 +88,10 @@ class ComplaintController extends Controller
         ]);
 
         $complaint = Complaint::findOrFail($id);
-         if($complaint->status == 'received')
-        {
-            return redirect()->back()->with('error', 'Please review the complaint before assigning an officer.');
-        }
+        //  if($complaint->status == 'received')
+        // {
+        //     return redirect()->back()->with('error', 'Please review the complaint before assigning an officer.');
+        // }
         $complaint->assigned_to = $request->officer_id;
         $complaint->save();
 
@@ -166,9 +166,9 @@ public function update(Request $request, $id)
 
     // 🔹 Assign Officer logic (same as assign method)
     if ($request->officer_id) {
-        if ($complaint->status == 'received') {
-            return redirect()->back()->with('error', 'Please review the complaint before assigning an officer.');
-        }
+        // if ($complaint->status == 'received') {
+        //     return redirect()->back()->with('error', 'Please review the complaint before assigning an officer.');
+        // }
         $complaint->assigned_to = $request->officer_id;
     }
 
