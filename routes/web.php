@@ -8,14 +8,16 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ComplaintTrackController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Police\ForwardCaseController;
 use App\Http\Controllers\Police\AddFIRController;
 use App\Http\Controllers\Police\EvidenceController;
-use App\Http\Controllers\Police\PoliceDashboardController;
 
+use App\Http\Controllers\Police\PoliceDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserPublicAlerts;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -186,9 +188,9 @@ Route::get('police/ai-tools',function(){
 // Route::get('police/manage-evidence',function(){
 //     return view('police.manage-evidence');
 // })->name('police.upload-evidence');
-Route::get('police/forward-case',function(){
-    return view('police.forward-case');
-})->name('police.forward-case');
+// Route::get('police/forward-case',function(){
+//     return view('police.forward-case');
+// })->name('police.forward-case');
 
 
 
@@ -209,5 +211,7 @@ Route::put('/police/cases/{id}/update', [App\Http\Controllers\Police\ComplaintCo
     Route::delete('/evidence/{id}', [EvidenceController::class, 'destroy'])->name('police.evidence.destroy');
 
 
-        Route::get('/forward-case', [App\Http\Controllers\Police\ForwardCaseController::class, 'index'])->name('police.forward.index');
-    Route::post('/forward-case', [App\Http\Controllers\Police\ForwardCaseController::class, 'forward'])->name('police.forward.case');
+
+// Forward Case Routes
+    Route::get('/forward-case', [ForwardCaseController::class, 'index'])->name('police.forward-case');
+    Route::post('/forward-case', [ForwardCaseController::class, 'forward'])->name('police.forward.cases');

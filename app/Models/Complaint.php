@@ -42,6 +42,15 @@ class Complaint extends Model
     {
         return $this->hasMany(Media::class, 'complaint_id');
     }
+    public function officer()
+{
+    return $this->belongsTo(User::class, 'assigned_to'); // foreign key in complaints table
+}
+
+public function latestStatus()
+{
+    return $this->hasOne(ComplaintStatusLog::class, 'complaint_id')->latestOfMany();
+}
   
 //     protected static function booted()
 // {
