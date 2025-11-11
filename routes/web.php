@@ -215,3 +215,16 @@ Route::put('/police/cases/{id}/update', [App\Http\Controllers\Police\ComplaintCo
 // Forward Case Routes
     Route::get('/forward-case', [ForwardCaseController::class, 'index'])->name('police.forward-case');
     Route::post('/forward-case', [ForwardCaseController::class, 'forward'])->name('police.forward.cases');
+
+
+
+    //Forensic Analyst Routes
+    Route::get('/forensic/dashboard', [App\Http\Controllers\ForensicController\DashboardController::class, 'dashboard'])->name('forensic.dashboard');
+    Route::get('/forensic/assigned-cases', [App\Http\Controllers\ForensicController\AssignedCasesController::class, 'assignedCases'])->name('forensic.assigned-cases');
+    Route::get('/forensic/case-details/{id}', [App\Http\Controllers\ForensicController\CaseDetailsController::class, 'caseDetails'])->name('forensic.case.details');
+    // Route::post('/forensic/case/{id}/review', [ForensicController::class, 'submitReview'])->name('forensic.submitReview');
+    // AI-assisted actions
+// Route::post('/forensic/case/{id}/ai/transcribe', [ForensicController::class, 'aiTranscribe'])->name('forensic.ai.transcribe');
+// Route::post('/forensic/case/{id}/ai/summarize', [ForensicController::class, 'aiSummarize'])->name('forensic.ai.summarize');
+// Route::post('/forensic/case/{id}/ai/face-detect', [ForensicController::class, 'aiFaceDetect'])->name('forensic.ai.faceDetect');
+// Route::post('/forensic/case/{id}/ai/report', [ForensicController::class, 'aiReport'])->name('forensic.ai.report');

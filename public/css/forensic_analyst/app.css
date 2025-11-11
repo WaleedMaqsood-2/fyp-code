@@ -1,0 +1,136 @@
+
+    :root{
+      --primary: #1173d4;
+      --accent: #ff6600;
+      --bg-light: #f6f7f8;
+      --bg-dark: #101922;
+      --card-dark: #111a22;
+      --status-high: #D32F2F;
+      --status-medium: #FFA000;
+      --status-completed: #388E3C;
+      --status-info: #1976D2;
+    }
+
+    [data-bs-theme="light"]{
+      --bs-body-bg: var(--bg-light);
+      --bs-body-color: #212529;
+      --bs-border: #dee2e6;
+      --card-bg: #ffffff;
+      --nav-bg: #ffffff;
+      --sidebar-bg: #ffffff;
+      --muted: #6c757d;
+    }
+    [data-bs-theme="dark"]{
+      --bs-body-bg: var(--bg-dark);
+      --bs-body-color: #e9ecef;
+      --bs-border: #233648;
+      --card-bg: var(--card-dark);
+      --nav-bg: var(--card-dark);
+      --sidebar-bg: var(--card-dark);
+      --muted: #8fa6bd;
+    }
+
+   
+    body{
+      font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      margin:0;
+      min-height: 100vh;
+      background:var(--bs-body-bg);
+      color:var(--bs-body-color);
+      transition:background .25s ease, color .25s ease;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Header (fixed) */
+    header.topbar{
+      height:64px;
+      background:var(--nav-bg);
+      border-bottom:1px solid var(--bs-border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 1.25rem;
+      position:fixed;
+      top:0; left:0; right:0;
+      z-index:1030;
+    }
+
+    /* Sidebar (fixed) */
+    /* .dashboard-wrap{
+        display:flex; 
+        flex:1; 
+        margin-top:64px; 
+        min-height: calc(100vh - 64px);
+    } */
+    aside.sidebar{
+      width:260px;
+      background:var(--sidebar-bg);
+      border-right:1px solid var(--bs-border);
+      padding:1rem;
+      position:fixed; 
+      top:64px;
+      left: 0;
+      bottom: 0;
+      height:calc(100vh - 64px);
+      overflow-y:auto;
+    }
+    aside .brand{display:flex; gap:.6rem; align-items:center;}
+    aside .brand .icon{
+      width:44px; height:44px; border-radius:.6rem;
+      display:flex; align-items:center; justify-content:center;
+      color:var(--primary); background:rgba(17,115,212,0.08);
+      font-size:1.4rem;
+    }
+    aside .nav-link{
+      color:inherit;
+      border-radius:.5rem;
+      padding:.5rem .65rem;
+      display:flex; gap:.6rem; align-items:center;
+    }
+    aside .nav-link.active{
+      background: rgba(17,115,212,0.08);
+      color:var(--primary);
+      font-weight:600;
+    }
+
+    /* Main (scrollable) */
+    main.content{
+        margin-top:70px;
+        /* min-height: calc(100vh - 64px); */
+        margin-left:260px;
+      flex:1;
+      padding:1.5rem;
+      overflow:auto;
+      background:var(--bs-body-bg);
+    }
+
+   
+    /* footer */
+    footer.dashboard-footer{
+       margin-left: 250px;
+      border-top:1px solid var(--bs-border);
+      background:var(--card-bg);
+      padding:.9rem 1rem;
+      text-align:center;
+    }
+
+    /* utility small adjustments to match spacing */
+    .gap-3x{gap:1rem;}
+    .muted{color:var(--muted);}
+
+    /* responsive: collapse sidebar on small screens */
+    @media (max-width: 991.98px){
+      aside.sidebar{ position:fixed; left:-280px; top:64px; height:calc(100vh - 64px); transition:left .25s ease; z-index:1040; }
+      aside.sidebar.show{ left:0; }
+      .sidebar-backdrop{ display:none; }
+    }
+
+    /* small icon circle for avatars */
+    .avatar-sm{ width:44px; height:44px; border-radius:50%; overflow:hidden; display:inline-block; background-size:cover; background-position:center; }
+
+    /* badges */
+    .badge-status-high{ background:var(--status-high); color:#fff; }
+    .badge-status-medium{ background:var(--status-medium); color:#000; }
+    .badge-status-success{ background:var(--status-completed); color:#fff; }
+    .badge-info{ background:var(--status-info); color:#fff; }
