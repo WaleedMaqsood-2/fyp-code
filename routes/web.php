@@ -450,3 +450,352 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/export/transcriptions', [AdminController::class, 'exportTranscriptions']);
     Route::get('/settings/ai', [AdminController::class, 'aiSettings']);
 });
+
+
+
+// routes/web.php میں
+
+use App\Http\Controllers\TranscriptionController;
+
+// routes/web.php میں
+// routes/web.php میں
+Route::get('/test-offline', function() {
+    $testAudio = 'C:\Users\PMLS\Downloads\ghazals_ghalib_0809_librivox\aahkochaahyea_ghalib_64kb.mp3';
+    
+    $process = new \Symfony\Component\Process\Process([
+        'python',
+        base_path('app/PythonScripts/transcribe.py'),
+        $testAudio,
+        'ur'
+    ]);
+    
+    $process->setTimeout(300);
+    $process->run();
+    
+    return response()->json([
+        'exit_code' => $process->getExitCode(),
+        'stdout' => $process->getOutput(),
+        'stderr' => $process->getErrorOutput(),
+        'stdout_decoded' => $process->getOutput()
+    ]);
+});
+Route::get('/test-python-direct', function() {
+    // Test the exact command that works in CMD
+    $testAudio = 'C:\Users\PMLS\Downloads\ghazals_ghalib_0809_librivox\aahkochaahyea_ghalib_64kb.mp3';
+    
+    if (!file_exists($testAudio)) {
+        return response()->json([
+            'error' => 'Test audio not found',
+            'path' => $testAudio
+        ]);
+    }
+    
+    // Method 1: Direct command (like CMD)
+    $command = 'python "' . base_path('app/PythonScripts/transcribe.py') . '" "' . $testAudio . '" ur';
+    
+    // Method 2: Using Process component
+    $process = new \Symfony\Component\Process\Process([
+        'python',
+        base_path('app/PythonScripts/transcribe.py'),
+        $testAudio,
+        'ur'
+    ]);
+    
+    $process->setTimeout(300);
+    $process->run();
+    
+    return response()->json([
+        'command' => $command,
+        'exit_code' => $process->getExitCode(),
+        'stdout' => $process->getOutput(),
+        'stderr' => $process->getErrorOutput(),
+        'stdout_decoded' => json_decode('"' . $process->getOutput() . '"'),
+        'file_info' => [
+            'path' => $testAudio,
+            'exists' => file_exists($testAudio),
+            'size' => filesize($testAudio)
+        ]
+    ]);
+});
+// routes/web.php میں test route بنائیں
+Route::get('/test-python-script', function() {
+    $pythonPath = 'python'; // یا 'D:\Python\python.exe'
+    $scriptPath = base_path('app/PythonScripts/transcribe.py');
+    
+    // Test audio file - آپ نے جو CMD میں استعمال کیا تھا
+    $testAudio = 'C:\Users\PMLS\Downloads\ghazals_ghalib_0809_librivox\aahkochaahyea_ghalib_64kb.mp3';
+    
+    // یا کوئی اور test file
+    // $testAudio = storage_path('app/test_audio.mp3');
+    
+    if (!file_exists($testAudio)) {
+        // ایک simple test audio بنائیں
+        $testAudio = storage_path('app/test_simple.wav');
+        
+        // Create a simple WAV file
+        $wavContent = base64_decode('UklGRjIAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQ4AAA==');
+        file_put_contents($testAudio, $wavContent);
+    }
+    
+    $command = [
+        $pythonPath,
+        $scriptPath,
+        $testAudio,
+        'ur'
+    ];
+    
+    $process = new \Symfony\Component\Process\Process($command);
+    $process->setTimeout(120);
+    $process->run();
+    
+    return response()->json([
+        'python_path' => $pythonPath,
+        'script_path' => $scriptPath,
+        'audio_path' => $testAudio,
+        'audio_exists' => file_exists($testAudio),
+        'exit_code' => $process->getExitCode(),
+        'is_successful' => $process->isSuccessful(),
+        'stdout' => $process->getOutput(),
+        'stderr' => $process->getErrorOutput()
+    ]);
+});
+// Transcription Form Routes
+Route::get('/transcribe', [TranscriptionController::class, 'showForm'])->name('transcribe.form');
+Route::get('/transcribe/form', [TranscriptionController::class, 'showForm']);
+// routes/web.php میں
+
+// Simple test routes
+Route::post('/transcribe/simple-test', [TranscriptionController::class, 'simpleUpload']);
+Route::post('/transcribe/direct', [TranscriptionController::class, 'directTranscribe']);
+
+// Main route (temporary fix - use direct route)
+Route::post('/transcribe/upload', [TranscriptionController::class, 'directTranscribe'])
+    ->name('transcribe.upload')
+    ->withoutMiddleware(['csrf']);
+Route::get('/transcribe/direct', [TranscriptionController::class, 'directTranscription'])->name('transcribe.direct');
+Route::get('/transcribe/history', [TranscriptionController::class, 'getHistory'])->name('transcribe.history');
+
+
+
+
+Route::middleware('auth')->group(function() {
+    Route::get('transcription/form/{complaintId}', [TranscriptionController::class, 'showForm'])->name('transcription.form');
+    Route::post('transcription/upload', [TranscriptionController::class, 'uploadAudio'])->name('transcription.upload');
+    Route::get('transcription/preview/{id}', [TranscriptionController::class, 'preview'])->name('transcription.preview');
+    Route::post('transcription/save/{id}', [TranscriptionController::class, 'saveCorrection'])->name('transcription.save');
+});
+
+// routes/web.php میں
+Route::get('/test-python-fix', function() {
+    $pythonPath = 'D:\Python\python.exe';
+    $testScript = storage_path('app/test_fix.py');
+    
+    // Simple test script بنائیں
+    $scriptContent = <<<'PYTHON'
+import sys
+print("Python version:", sys.version)
+print("Platform:", sys.platform)
+try:
+    import asyncio
+    print("Asyncio imported successfully")
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        print("Event loop policy set")
+except Exception as e:
+    print(f"Asyncio error: {e}")
+    
+print("Script completed successfully")
+PYTHON;
+    
+    file_put_contents($testScript, $scriptContent);
+    
+    $process = new \Symfony\Component\Process\Process([
+        $pythonPath,
+        $testScript
+    ]);
+    
+    $process->setTimeout(10);
+    $process->run();
+    
+    return response()->json([
+        'exit_code' => $process->getExitCode(),
+        'output' => $process->getOutput(),
+        'error' => $process->getErrorOutput()
+    ]);
+});
+
+// routes/web.php میں شامل کریں
+Route::get('/test-transcription-debug', function() {
+    $pythonPath = 'D:\Python\python.exe';
+    $pythonScript = 'D:\web development\laravel\FYP\app\PythonScripts\transcribe.py';
+    
+    // ایک test audio file بنائیں یا موجودہ استعمال کریں
+    $testAudio = 'C:\Users\PMLS\Downloads\ghazals_ghalib_0809_librivox\aashiq_ghalib_64kb.mp3';
+    
+    // اگر test file نہیں ہے تو بنائیں
+    if (!file_exists($testAudio)) {
+        // ایک empty WAV file بنائیں
+        $wavHeader = pack('cccccccccc', 82, 73, 70, 70, 40, 0, 0, 0, 87, 65);
+        file_put_contents($testAudio, $wavHeader);
+    }
+    
+    $process = new \Symfony\Component\Process\Process([
+        $pythonPath,
+        $pythonScript,
+        $testAudio,
+        'ur'
+    ]);
+    
+    $process->setTimeout(30);
+    $process->run();
+    
+    return response()->json([
+        'python_path' => $pythonPath,
+        'script_path' => $pythonScript,
+        'audio_path' => $testAudio,
+        'exit_code' => $process->getExitCode(),
+        'is_successful' => $process->isSuccessful(),
+        'stdout' => $process->getOutput(),
+        'stderr' => $process->getErrorOutput(),
+        'stdout_length' => strlen($process->getOutput()),
+        'stderr_length' => strlen($process->getErrorOutput())
+    ]);
+});
+
+
+// routes/web.php میں
+Route::get('/test-cmd-transcription', function() {
+    // Test audio file
+    $testAudio = storage_path('app/public/test.mp3');
+    
+    // اگر test file موجود نہیں ہے تو بنائیں
+    if (!file_exists($testAudio)) {
+        // ایک sample MP3 file بنائیں یا ڈاؤن لوڈ کریں
+        // آپ کوئی بھی short MP3 file استعمال کر سکتے ہیں
+        $sampleContent = base64_decode('// MP3 کا sample content');
+        file_put_contents($testAudio, $sampleContent);
+    }
+    
+    // وہ command جو CMD میں کام کرتی ہے
+    $command = [
+        'python',
+        '-c',
+        '"import whisper; model = whisper.load_model(\'tiny\'); result = model.transcribe(\'' . $testAudio . '\', language=\'ur\'); print(result[\'text\'])"'
+    ];
+    
+    // یا اگر آپ کے پاس separate script ہے
+    // $command = ['python', 'D:\path\to\transcribe.py', $testAudio, 'ur'];
+    
+    $process = new \Symfony\Component\Process\Process($command);
+    $process->setTimeout(300); // 5 minutes
+    $process->run();
+    
+    return response()->json([
+        'command' => implode(' ', $command),
+        'exit_code' => $process->getExitCode(),
+        'is_successful' => $process->isSuccessful(),
+        'output' => $process->getOutput(),
+        'error' => $process->getErrorOutput()
+    ]);
+});
+
+
+
+
+// Transcription routes
+Route::get('/transcribe/test', [TranscriptionController::class, 'testTranscription']);
+Route::post('/transcribe/upload', [TranscriptionController::class, 'transcribeUpload']);
+Route::post('/transcribe/by-path', [TranscriptionController::class, 'transcribeByPath']);
+Route::get('/transcribe/health', [TranscriptionController::class, 'systemHealth']);
+
+// Simple direct test - بالکل CMD والی command
+Route::get('/transcribe/direct-test', function() {
+    $pythonPath = 'python';
+    $scriptPath = base_path('app/PythonScripts/transcribe.py');
+    $audioPath = 'C:\Users\PMLS\Downloads\ghazals_ghalib_0809_librivox\aahkochaahyea_ghalib_64kb.mp3';
+    
+    // Check if files exist
+    if (!file_exists($scriptPath)) {
+        return response()->json([
+            'error' => 'Script not found',
+            'script_path' => $scriptPath,
+            'exists' => file_exists($scriptPath)
+        ]);
+    }
+    
+    if (!file_exists($audioPath)) {
+        return response()->json([
+            'error' => 'Audio not found',
+            'audio_path' => $audioPath,
+            'exists' => file_exists($audioPath)
+        ]);
+    }
+    
+    $command = [
+        $pythonPath,
+        $scriptPath,
+        $audioPath,
+        'ur'
+    ];
+    
+    $process = new \Symfony\Component\Process\Process($command);
+    $process->setTimeout(300);
+    
+    try {
+        $process->mustRun();
+        
+        return response()->json([
+            'success' => true,
+            'command' => implode(' ', $command),
+            'exit_code' => $process->getExitCode(),
+            'output' => $process->getOutput(),
+            'error_output' => $process->getErrorOutput(),
+            'parsed_output' => $this->parseOutput($process->getOutput())
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'command' => implode(' ', $command),
+            'exit_code' => $process->getExitCode(),
+            'output' => $process->getOutput(),
+            'error_output' => $process->getErrorOutput()
+        ]);
+    }
+});
+
+// Helper function to parse output
+if (!function_exists('parseOutput')) {
+    function parseOutput($output) {
+        if (strpos($output, '||') !== false) {
+            $parts = explode('||', $output);
+            return [
+                'urdu_text' => $parts[0] ?? '',
+                'roman_text' => $parts[1] ?? '',
+                'confidence' => floatval($parts[2] ?? 0.5)
+            ];
+        }
+        return ['raw_output' => $output];
+    }
+}
+
+
+// routes/web.php میں
+
+// Transcription Form Routes
+Route::get('/transcribe', [TranscriptionController::class, 'showForm'])->name('transcribe.form');
+Route::get('/transcribe/form', [TranscriptionController::class, 'showForm']);
+Route::post('/transcribe/upload', [TranscriptionController::class, 'handleUpload'])->name('transcribe.upload');
+Route::get('/transcribe/direct', [TranscriptionController::class, 'directTranscription'])->name('transcribe.direct');
+Route::get('/transcribe/history', [TranscriptionController::class, 'getHistory'])->name('transcribe.history');
+// routes/web.php میں
+
+// Test routes
+Route::post('/transcribe/test-upload', [TranscriptionController::class, 'testUpload']);
+Route::get('/transcribe/status', [TranscriptionController::class, 'checkStatus']);
+
+// Main transcription route with CSRF exemption for testing
+Route::post('/transcribe/upload', [TranscriptionController::class, 'handleUpload'])
+    ->name('transcribe.upload')
+    ->withoutMiddleware(['csrf']); // Remove this after testing
