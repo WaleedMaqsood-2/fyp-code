@@ -33,8 +33,8 @@
             <th>Track ID</th>
             <th>Complaint By</th>
             <th>Title</th>
-            <th>Status</th>
             <th>Incident Type</th>
+            <th>Status</th>
             <th>Severity</th>
             <th>Date</th>
             <th>Actions</th>
@@ -266,12 +266,67 @@
   </button>
 
   <!-- ✅ Forward to Forensic Analyst -->
-  <form action="" method="POST" class="d-inline">
+  {{-- <form action="" method="POST" class="d-inline">
     @csrf
     <button type="submit" class="btn btn-success">
       <i class="bi bi-send"></i> Forward to Forensic Analyst
     </button>
-  </form>
+  </form> --}}
+
+    {{-- @php
+        $status = $case->latestStatus?->status ?? 'recieved';
+      @endphp
+    @if($status === 'recieved')
+      <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#forwardModal" data-id="{{ $case->id }}">
+        
+  
+      <i class="bi bi-send"></i> Forward to Forensic Analyst
+    
+      </button>
+      @else
+      <button class="btn btn-sm btn-outline-secondary" disabled>
+        <span class="material-icons fs-6">check_circle</span> Sent
+      </button>
+      @endif --}}
+
+      <!-- Forward Modal -->
+{{-- <div class="modal fade" id="forwardModal" tabindex="-1" aria-labelledby="forwardModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="forwardModalLabel"><span class="material-icons align-middle">send</span> Forward Case</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="forwardForm" method="POST" action="{{ route('police.forward.cases') }}">
+          @csrf
+          <input type="hidden" name="case_id" id="case_id">
+
+          <div class="mb-3">
+            <label class="form-label">Select Forensic Analyst</label>
+            <select class="form-select" name="analyst_id" required>
+              <option value="">Select Forensic Analyst</option>
+              @foreach ($analysts as $analyst)
+              <option value="{{ $analyst->id }}">{{ $analyst->name }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Add Remarks / Instructions</label>
+            <textarea class="form-control" name="remarks" rows="3" placeholder="Describe what to analyze..." required></textarea>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-success">
+              <span class="material-icons">check_circle</span> Confirm Forward
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div> --}}
 </div>
 
       </div>

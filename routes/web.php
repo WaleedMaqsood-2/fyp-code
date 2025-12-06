@@ -1,22 +1,46 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PublicAlertController;
+use App\Http\Controllers\Admin\SummaryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ComplaintTrackController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Police\ForwardCaseController;
+use App\Http\Controllers\Forensic\ForensicController;
+use App\Http\Controllers\ForensicController\AIController;
+use App\Http\Controllers\ForensicController\AssignedCasesController;
+
+use App\Http\Controllers\ForensicController\AudioVideoSegmentationController;
+use App\Http\Controllers\ForensicController\CaseDetailsController;
+use App\Http\Controllers\ForensicController\DashboardController as ForensicControllerDashboardController;
+use App\Http\Controllers\ForensicController\FaceMatchingController;
+use App\Http\Controllers\ForensicController\FinalizeReportController;
+use App\Http\Controllers\ForensicController\ReportController;
+use App\Http\Controllers\ForensicController\SummaryApprovalController;
+use App\Http\Controllers\ForensicController\TranscriptVerificationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Police\AddFIRController;
 use App\Http\Controllers\Police\EvidenceController;
-
+use App\Http\Controllers\Police\ForwardCaseController;
+use App\Http\Controllers\Police\PoliceController;
 use App\Http\Controllers\Police\PoliceDashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicUser\PublicUserController;
 use App\Http\Controllers\UserPublicAlerts;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
+
+
+
+
+
+
 
 
 
@@ -118,6 +142,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 
+    Route::get('/summaries', [SummaryController::class, 'index'])->name('admin.summaries');
+    Route::post('/summaries/{id}/approve', [SummaryController::class, 'approve'])->name('admin.summaries.approve');
+    Route::post('/summaries/{id}/reject', [SummaryController::class, 'reject'])->name('admin.summaries.reject');
+
+    
+
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -153,6 +183,17 @@ Route::middleware('auth')->group(function () {
 Route::get('/Public/complaints-form', [ComplaintController::class, 'store'])->name('public.complaints.form');
   Route::get('/Public/complaints-form', [ComplaintController::class, 'create'])->name('public.complaints.form');
   Route::get('/Public/complaints-track', [ComplaintTrackController::class, 'index'])->name('public.complaints.track');
+    Route::post('/preview-voice', [ComplaintController::class, 'previewVoiceComplaint'])->name('complaints.preview.voice');
+    Route::get('/{id}/transcription', [ComplaintController::class, 'getTranscription']);
+    Route::get('/{id}/transcription-status', [ComplaintController::class, 'checkTranscriptionStatus']);
+    Route::delete('/hide/{id}', [ComplaintController::class, 'hide'])->name('complaints.hide');
+
+    
+   Route::post('/api/transcribe', [ComplaintController::class, 'previewVoiceComplaint']);
+    Route::get('/api/complaint/{id}/transcription', [ComplaintController::class, 'getTranscription']);
+
+
+
 
     Route::get('/Public/public-alerts', [UserPublicAlerts::class, 'allAlerts'])
      ->name('public.alerts');
@@ -220,6 +261,36 @@ Route::put('/police/cases/{id}/update', [App\Http\Controllers\Police\ComplaintCo
 
     //Forensic Analyst Routes
     Route::get('/forensic/dashboard', [App\Http\Controllers\ForensicController\DashboardController::class, 'dashboard'])->name('forensic.dashboard');
+    Route::get('/forensic/case/{trackId}', [App\Http\Controllers\ForensicController\DashboardController::class, 'showCaseDetail'])->name('forensic.case.detail');
+Route::get('/preview/{path}', function ($path) {
+
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404, 'File not found: ' . $fullPath);
+    }
+
+    $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+
+    $mime = [
+        'jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png','gif'=>'image/gif','bmp'=>'image/bmp','webp'=>'image/webp',
+        'mp4'=>'video/mp4','webm'=>'video/webm','mkv'=>'video/x-matroska','mov'=>'video/quicktime',
+        'mp3'=>'audio/mpeg','wav'=>'audio/wav','ogg'=>'audio/ogg','aac'=>'audio/aac',
+        'pdf'=>'application/pdf',
+        'doc'=>'application/msword','docx'=>'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'xlsx'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'pptx'=>'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'txt'=>'text/plain'
+    ][$ext] ?? 'application/octet-stream';
+
+    return response()->file($fullPath, [
+        'Content-Type' => $mime,
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+
+})->where('path', '.*')->name('file.preview');
+
+
     Route::get('/forensic/assigned-cases', [App\Http\Controllers\ForensicController\AssignedCasesController::class, 'assignedCases'])->name('forensic.assigned-cases');
     Route::get('/forensic/case-details/{id}', [App\Http\Controllers\ForensicController\CaseDetailsController::class, 'caseDetails'])->name('forensic.case.details');
     // Route::post('/forensic/case/{id}/review', [ForensicController::class, 'submitReview'])->name('forensic.submitReview');
@@ -228,3 +299,154 @@ Route::put('/police/cases/{id}/update', [App\Http\Controllers\Police\ComplaintCo
 // Route::post('/forensic/case/{id}/ai/summarize', [ForensicController::class, 'aiSummarize'])->name('forensic.ai.summarize');
 // Route::post('/forensic/case/{id}/ai/face-detect', [ForensicController::class, 'aiFaceDetect'])->name('forensic.ai.faceDetect');
 // Route::post('/forensic/case/{id}/ai/report', [ForensicController::class, 'aiReport'])->name('forensic.ai.report');
+
+
+
+ Route::post('/case/{id}/summarize', [AIController::class, 'generateSummary'])
+        ->name('forensic.ai.summarize');
+
+    Route::get('/case/{id}/report', [AIController::class, 'generateAIReport'])
+        ->name('forensic.report');
+
+        
+
+    Route::post('/case/{id}/review', [CaseDetailsController::class, 'submitReview'])
+        ->name('forensic.submitReview');
+
+Route::get('/forensic/case/{id}/report', [AssignedCasesController::class, 'showReport'])->name('forensic.report');
+Route::post('/forensic/case/{id}/report/export', [AssignedCasesController::class, 'exportReport'])->name('forensic.report.export');
+
+
+
+    // Route::get('/face-matching', [FaceMatchingController::class, 'index'])->name('forensic.face.match');
+    // Route::post('/face-matching', [FaceMatchingController::class, 'match'])->name('forensic.face.match.post');
+
+  // Face Matching Routes
+    Route::get('/face-matching', [FaceMatchingController::class, 'index'])
+        ->name('forensic.face.match');
+        
+    Route::post('/face-matching/match', [FaceMatchingController::class, 'match'])
+        ->name('forensic.face.match.post');
+        
+    Route::post('/face-matching/verify/{id}', [FaceMatchingController::class, 'verifyMatch'])
+        ->name('forensic.face.verify');
+        
+    Route::post('/face-matching/reject/{id}', [FaceMatchingController::class, 'rejectMatch'])
+        ->name('forensic.face.reject');
+        
+    Route::delete('/face-matching/delete/{id}', [FaceMatchingController::class, 'deleteMatch'])
+        ->name('forensic.face.delete');
+        
+    Route::get('/face-matching/view/{id}', [FaceMatchingController::class, 'viewMatch'])
+        ->name('forensic.face.view');
+        
+    Route::get('/face-matching/statistics', [FaceMatchingController::class, 'getStatistics'])
+        ->name('forensic.face.statistics');
+        
+    Route::get('/face-matching/case/{id}/matches', [FaceMatchingController::class, 'getCaseMatches'])
+        ->name('forensic.face.case-matches');
+        
+    Route::post('/face-matching/batch-verify', [FaceMatchingController::class, 'batchVerify'])
+        ->name('forensic.face.batch-verify');
+
+
+
+
+
+    Route::get('/audio-video-segmentation', [AudioVideoSegmentationController::class, 'index'])->name('forensic.audio-video');
+    Route::post('/audio-video-segmentation', [AudioVideoSegmentationController::class, 'segment'])->name('forensic.audio-video.segment');
+
+
+        Route::get('/transcript-verification', [TranscriptVerificationController::class, 'index'])->name('forensic.transcript');
+    Route::post('/transcript-verification', [TranscriptVerificationController::class, 'update'])->name('forensic.transcript.update');
+  Route::get('/forensic/transcript-verification/status/{mediaId}', [TranscriptVerificationController::class, 'getVerificationStatus'])
+        ->name('forensic.transcript.status');
+      
+      
+    Route::get('/summary-approval', [SummaryApprovalController::class, 'index'])->name('forensic.summary');
+Route::post('/summary-approval', [SummaryApprovalController::class, 'update'])->name('forensic.summary.update');
+
+Route::get('/summary-approval/approved', [SummaryApprovalController::class, 'approved'])
+    ->name('forensic.summary.approved');
+Route::get('/summary-approval/{complaintId}', [SummaryApprovalController::class, 'show'])
+    ->name('forensic.summary.detail');
+
+
+        Route::get('/finalize-report', [FinalizeReportController::class, 'index'])->name('forensic.finalize');
+    Route::get('/finalize-report/export/{id}', [FinalizeReportController::class, 'exportPDF'])->name('forensic.finalize.export');
+    Route::get('/finalize-report', [FinalizeReportController::class, 'index'])
+        ->name('forensic.finalize');
+        
+    Route::get('/finalize-report/export/{id}', [FinalizeReportController::class, 'exportPDF'])
+        ->name('forensic.finalize.export');
+        
+    Route::get('/finalize-report/generated', [FinalizeReportController::class, 'generatedReports'])
+        ->name('forensic.finalize.generated');
+        
+    Route::get('/finalize-report/view/{id}', [FinalizeReportController::class, 'viewReport'])
+        ->name('forensic.finalize.view');
+        
+    Route::get('/finalize-report/download/{id}', [FinalizeReportController::class, 'downloadReport'])
+        ->name('forensic.finalize.download');
+
+// web.php میں
+Route::delete('/finalize-report/delete/{id}', [FinalizeReportController::class, 'deleteReport'])
+    ->name('forensic.finalize.delete');
+Route::get('/forensic/cases/{id}/export-pdf', [AIController::class, 'exportPDF'])
+    ->name('forensic.export.pdf');
+    // web.php میں
+Route::get('/finalize-report/check-file/{id}', [FinalizeReportController::class, 'checkFile'])
+    ->name('forensic.finalize.check-file');
+
+
+
+
+
+
+
+    // Notifications Routes
+Route::middleware(['auth'])->group(function () {
+    // Notifications
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/clear-all', [NotificationController::class, 'clearAll']);
+    });
+});
+
+
+
+
+// Public Routes (No authentication required)
+Route::prefix('public')->group(function () {
+    Route::post('/complaint/voice', [PublicUserController::class, 'submitVoiceComplaint']);
+    Route::post('/complaint/preview', [PublicUserController::class, 'previewTranscription']);
+    Route::get('/complaint/status/{id}', [PublicUserController::class, 'checkStatus']);
+});
+
+// Police Routes
+Route::prefix('police')->middleware(['auth', 'role:police'])->group(function () {
+    Route::post('/fir/record', [PoliceController::class, 'recordFIR']);
+    // Route::get('/cases', [PoliceController::class, 'myCases']);
+    Route::put('/transcription/{id}/edit', [PoliceController::class, 'editTranscription']);
+});
+
+// Forensic Routes
+Route::prefix('forensic')->middleware(['auth', 'role:forensic'])->group(function () {
+    Route::get('/verifications', [ForensicController::class, 'pendingVerifications']);
+    Route::post('/verify/{id}', [ForensicController::class, 'verify']);
+    Route::get('/verified', [ForensicController::class, 'verifiedTranscriptions']);
+    Route::post('/report/generate/{id}', [ForensicController::class, 'generateReport']);
+});
+
+// Admin Routes
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::get('/transcriptions', [AdminController::class, 'transcriptions']);
+    Route::get('/transcription/{id}', [AdminController::class, 'transcriptionDetail']);
+    Route::get('/ai-statistics', [AdminController::class, 'aiStatistics']);
+    Route::post('/export/transcriptions', [AdminController::class, 'exportTranscriptions']);
+    Route::get('/settings/ai', [AdminController::class, 'aiSettings']);
+});

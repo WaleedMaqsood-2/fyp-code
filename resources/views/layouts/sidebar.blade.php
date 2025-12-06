@@ -50,10 +50,17 @@
               </li>
               <li class="nav-item {{ Route::currentRouteName() == 'admin.public.alerts' ? 'active' : '' }}">
                 <a href="{{ route('admin.public.alerts') }}">
-                  <i class="fas fa-exclamation-circle"></i>
+                  <i class="fas fa-bell"></i>
                   <p>Manage Alerts</p>
                 </a>
               </li>
+              <li class="nav-item {{ Route::currentRouteName() == 'admin.summaries' ? 'active' : '' }}">
+                <a href="{{ route('admin.summaries') }}">
+                  <i class="fas fa-file-alt"></i>
+                  <p>Manage Summaries</p>
+                </a>
+              </li>
+
               <li class="nav-item {{ Route::currentRouteName() == 'ai.usage' ? 'active' : '' }}">
                 <a href="{{ route('ai.usage') }}">
                   <i class="fas fa-robot"></i>

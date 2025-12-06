@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <div class="ms-2 mt-4">
+    <div class="ms-2 mt-4 p-4">
      @if ($errors->any())
         <div class="alert alert-danger">
             {{ $errors->first() }}

@@ -338,12 +338,12 @@
   </button>
 
   <!-- ✅ Forward to Forensic Analyst -->
-  <form action="" method="POST" class="d-inline">
+  {{-- <form action="" method="POST" class="d-inline">
     @csrf
     <button type="submit" class="btn btn-success">
       <i class="bi bi-send"></i> Forward to Forensic Analyst
     </button>
-  </form>
+  </form> --}}
 </div>
 
       </div>

@@ -16,12 +16,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->register(\App\Providers\NotificationServiceProvider::class);
     }
 
     /**
      * Bootstrap any application services.
      */
+    // app/Providers/AppServiceProvider.php
+
     public function boot(): void
     {
         Paginator::useBootstrapFive();

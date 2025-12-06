@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\RecentActivities;
-use Illuminate\Foundation\Auth\User;
+use App\Models\User;
+use App\Helpers\NotificationHelper; // Add this
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,9 +14,8 @@ class ProfileController extends Controller
 {
     public function update(Request $request)
     {
-        $user = User::find(Auth::id()); // logged in user as Eloquent model
+        $user = User::find(Auth::id());
 
-        // validate input
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -25,7 +25,9 @@ class ProfileController extends Controller
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // update data
+        $oldEmail = $user->email;
+        $oldName = $user->name;
+
         $user->name = $request->name;
         $user->email = $request->email;
         $user->cnic = $request->cnic;
@@ -36,18 +38,79 @@ class ProfileController extends Controller
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/profile'), $imageName);
             $user->profile_image = 'images/profile/' . $imageName;
+            
+            // ✅ **NEW: Profile image update notification**
+            NotificationHelper::createForUser(
+                $user->id,
+                "Profile Picture Updated",
+                "Your profile picture has been updated successfully",
+                'success',
+                route('admin.profile')
+            );
         }
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
+            
+            // ✅ **NEW: Password change notification (security alert)**
+            NotificationHelper::createForUser(
+                $user->id,
+                "Password Changed",
+                "Your account password has been changed",
+                'warning',
+                route('admin.profile')
+            );
+            
+            // ✅ **NEW: Security notification to all admins**
+            $otherAdmins = User::where('role_id', 1)
+                ->where('id', '!=', $user->id)
+                ->active()
+                ->get();
+                
+            foreach ($otherAdmins as $admin) {
+                NotificationHelper::createForUser(
+                    $admin->id,
+                    "Admin Password Changed",
+                    "Admin {$user->name} changed their password",
+                    'info',
+                    route('admin.users.show', $user->id)
+                );
+            }
         }
 
-             
-    RecentActivities::create([
-        'user_id' => Auth::id(),
-        'action'  => 'User '.$request->name.' update his profile',
-    ]);
         $user->save();
+
+        // ✅ **NEW: Profile update notification**
+        NotificationHelper::createForUser(
+            $user->id,
+            "Profile Updated",
+            "Your profile information has been updated successfully",
+            'success',
+            route('admin.profile')
+        );
+
+        // ✅ **NEW: Notify other admins about significant changes**
+        if ($oldEmail !== $request->email) {
+            $otherAdmins = User::where('role_id', 1)
+                ->where('id', '!=', $user->id)
+                ->active()
+                ->get();
+                
+            foreach ($otherAdmins as $admin) {
+                NotificationHelper::createForUser(
+                    $admin->id,
+                    "Admin Email Changed",
+                    "Admin {$oldName} changed email from {$oldEmail} to {$request->email}",
+                    'info',
+                    route('admin.users.show', $user->id)
+                );
+            }
+        }
+
+        RecentActivities::create([
+            'user_id' => Auth::id(),
+            'action'  => 'User '.$request->name.' updated his profile',
+        ]);
 
         return redirect()->back()->with('success', 'Profile updated successfully!');
     }

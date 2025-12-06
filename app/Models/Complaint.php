@@ -9,7 +9,6 @@ class Complaint extends Model
 {
     use HasFactory;
 
-    // ✅ Add these fields to allow mass assignment
     protected $fillable = [
         'track_id',
         'user_id',
@@ -19,7 +18,7 @@ class Complaint extends Model
         'incident_type',
         'incident_datetime',
         'severity',
-        'note' , 
+        'note', 
         'audio_file',
         'transcription',
         'status',
@@ -27,50 +26,114 @@ class Complaint extends Model
         'assigned_to',
     ];
 
-    // Optional: relationship to User
+    // ✅ Add this relationship for transcriptions
+    protected $casts = [
+        'has_transcription' => 'boolean',
+        'is_visible_to_user' => 'boolean'
+    ];
+
+    
+ // New relationship for transcription
+    public function transcription()
+    {
+        return $this->hasOne(Transcription::class);
+    }
+
+    public function transcriptions()
+    {
+        return $this->hasMany(Transcription::class);
+    }
+
+public function latestTranscription()
+{
+    return $this->hasOne(Transcription::class, 'complaint_id')->latestOfMany();
+}
+
+public function verifiedTranscription()
+{
+    return $this->hasOneThrough(
+        TranscriptionVerification::class,
+        Transcription::class,
+        'complaint_id',
+        'media_id',
+        'id',
+        'id'
+    )->where('approved', 1);
+}
+
+    // ✅ Add this relationship for transcription verifications
+    public function transcriptionVerifications()
+    {
+        return $this->hasManyThrough(
+            TranscriptionVerification::class,
+            Transcription::class,
+            'complaint_id', // Foreign key on transcriptions table
+            'media_id', // Foreign key on transcription_verifications table
+            'id', // Local key on complaints table
+            'id' // Local key on transcriptions table
+        );
+    }
+
+    // ✅ Also add these relationships if not present
+    public function summaries()
+    {
+        return $this->hasMany(PendingSummaries::class, 'complaint_id');
+    }
+
+    public function reportExports()
+    {
+        return $this->hasMany(ReportExport::class, 'review_id', 'id');
+    }
+
+    // Existing relationships...
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
     public function assignedUser()
-{
-    // Complaint assign kiya gaya officer
-    return $this->belongsTo(User::class, 'assigned_to');
-}
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
     public function media()
     {
         return $this->hasMany(Media::class, 'complaint_id');
     }
+
     public function officer()
-{
-    return $this->belongsTo(User::class, 'assigned_to'); // foreign key in complaints table
-}
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
 
-public function latestStatus()
-{
-    return $this->hasOne(ComplaintStatusLog::class, 'complaint_id')->latestOfMany();
-}
+    public function latestStatus()
+    {
+        return $this->hasOne(ComplaintStatusLog::class, 'complaint_id')->latestOfMany();
+    }
   
-//     protected static function booted()
-// {
-//     static::creating(function ($complaint) {
-//         // Latest track_id fetch karo
-//         $lastComplaint = Complaint::orderByDesc('id')->first();
+    public function PendingSummary()
+    {
+        return $this->hasOne(PendingSummaries::class, 'complaint_id');
+    }
 
-//         // Last number extract karo (agar koi complaint pehle se hai)
-//         if ($lastComplaint && preg_match('/(\d{6})$/', $lastComplaint->track_id, $matches)) {
-//             $lastNumber = (int)$matches[1];
-//         } else {
-//             $lastNumber = 0;
-//         }
+    public function firReport()
+    {
+        return $this->belongsTo(Complaint::class, 'fir_id', 'id');
+    }
 
-//         // Next number banao (001234 → 001235 …)
-//         $nextNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+    public function latestForensicReview()
+    {
+        return $this->hasOne(ForensicReview::class, 'fir_id')->latestOfMany();
+    }
 
-//         // Final Track ID (Prefix + Year + Number)
-//         $complaint->track_id = 'CT-' . date('Y') . '-' . $nextNumber;
-//     });
-// }
+     // Scope for voice complaints
+    public function scopeVoiceComplaints($query)
+    {
+        return $query->where('complaint_type', 'voice');
+    }
 
+    public function scopeWithTranscription($query)
+    {
+        return $query->where('has_transcription', true);
+    }
 }

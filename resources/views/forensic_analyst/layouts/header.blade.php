@@ -1,6 +1,6 @@
 <header class="topbar">
-     <div class="d-flex align-items-center gap-3">
-        <div class="d-flex align-items-center gap-2">
+     <div class="d-flex align-items-center gap-3 ">
+        <div class="d-flex align-items-center gap-2 ">
             <div class="fs-4 text-primary">
                 <a href="{{ route('forensic.dashboard') }}" class="text-decoration-none">
                 <i class="bi bi-shield-lock-fill"></i></div>
@@ -10,17 +10,18 @@
             </div>
             </a>
         </div>
-        <div class="input-group d-none d-md-flex ms-4" style="width:350px;">
+                <button id="sidebarToggle" class="btn btn-sm btn-light d-lg-none"><i class="bi bi-list"></i></button>
+        {{-- <div class="input-group d-none d-md-flex ms-4" style="width:350px;">
             <input id="searchInput" type="text" class="form-control form-control-sm bg-body-secondary border-0" placeholder="Search by Case ID, FIR...">
             <span class="input-group-text bg-body-secondary border-0"><i class="bi bi-search"></i></span>
-        </div>
+        </div> --}}
     </div>
     
     <div class="d-flex align-items-center gap-2">
 
-        <button id="sidebarToggle" class="btn btn-sm btn-light d-lg-none"><i class="bi bi-list"></i></button>
 
-        <button class="btn btn-sm btn-outline-secondary" title="Notifications"><i class="bi bi-bell"></i></button>
+
+        <button class="mb-4" title="Notifications"> @include('partials.notification-dropdown')</button>
 
         <!-- Theme toggle -->
         <button id="themeToggle" class="btn btn-sm btn-outline-secondary" title="Toggle theme"><i id="themeIcon" class="bi bi-moon"></i></button>

@@ -129,55 +129,7 @@
 {{-- user profile and notification --}}
  <div class="d-flex flex-md-row align-items-center gap-3 gap-md-4">
 
-  <!-- Notifications -->
-  <div class="dropdown">
-     <a class="nav-link position-relative" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown"
-   aria-haspopup="true" aria-expanded="false">
-   <i class="fa-solid fa-bell"></i>
-   <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-      4
-   </span>
-</a>
-
-
-    <!-- Notification Dropdown -->
-    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
-      <li class="px-3 py-2 border-bottom">
-        <strong>Notifications</strong>
-      </li>
-      <li>
-        <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
-          <i class="fas fa-info-circle text-primary mt-1 fs-2 mt-2"></i>
-          <div>
-            <small class="fw-bold">System Update</small><br>
-            <small class="text-muted">New version deployed successfully.</small>
-          </div>
-        </a>
-      </li>
-      <li>
-        <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
-          <i class="fas fa-user text-success fs-2 mt-2"></i>
-          <div>
-            <small class="fw-bold">New User</small><br>
-            <small class="text-muted">John Doe registered.</small>
-          </div>
-        </a>
-      </li>
-      <li>
-        <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
-          <i class="fas fa-exclamation-triangle text-warning fs-2 mt-2"></i>
-          <div>
-            <small class="fw-bold">Alert</small><br>
-            <small class="text-muted">Unusual activity detected.</small>
-          </div>
-        </a>
-      </li>
-      <li><hr class="dropdown-divider"></li>
-      <li>
-        <a class="dropdown-item text-center fw-semibold" href="#">View All</a>
-      </li>
-    </ul>
-  </div>
+  <span  style="list-style: none;"> @include('partials.notification-dropdown')</span>
 
   <!-- User Profile -->
   <div class="d-flex align-items-center ms-auto">

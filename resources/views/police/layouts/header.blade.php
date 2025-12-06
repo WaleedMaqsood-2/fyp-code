@@ -11,7 +11,10 @@
   </div>
 
   <div class="d-flex align-items-center gap-3">
-    <span class="material-symbols-outlined fs-4">notifications</span>
+     
+         <span class="mb-4" style="none"> @include('partials.notification-dropdown')</span>
+
+      
     <span id="themeToggle" class="material-symbols-outlined dark-toggle">dark_mode</span>
 
    @if($user)

@@ -544,202 +544,610 @@
   </script>
 </body>
 </html> --}}
+
+
+
+<style>
+    .stat-card {
+        background: #ffffff;
+        padding: 18px 20px;
+        border-radius: 14px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        transition: 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    }
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .muted {
+        color: #6c757d;
+    }
+</style>
+
 @extends('forensic_analyst.layouts.app')
+   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 @section('title','Dashboard')
+
 
 @section('content')
 <div class="row g-3">
    <!-- MAIN -->
     
-      <!-- page heading -->
-      <div class="d-flex justify-content-between align-items-start mb-3">
-        <div>
-          <h2 class="fw-bold mb-0">Forensic Analyst Dashboard</h2>
-          <div class="muted">Welcome back, Dr. Anya Sharma</div>
-        </div>
-      </div>
-
-      <!-- stats -->
-      <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="stat-card">
-            <div class="muted small">New Cases Assigned</div>
-            <div class="d-flex align-items-end gap-2">
-              <div class="fs-3 fw-bold">12</div>
-              <div class="text-success small">+2%</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="stat-card">
-            <div class="muted small">High-Priority Cases</div>
-            <div class="d-flex align-items-end gap-2">
-              <div class="fs-3 fw-bold">3</div>
-              <div class="text-success small">+5%</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="stat-card">
-            <div class="muted small">Cases Pending Review</div>
-            <div class="d-flex align-items-end gap-2">
-              <div class="fs-3 fw-bold">8</div>
-              <div class="text-danger small">-3%</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="stat-card">
-            <div class="muted small">Completed This Week</div>
-            <div class="d-flex align-items-end gap-2">
-              <div class="fs-3 fw-bold">5</div>
-              <div class="text-success small">+10%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- two-column layout: case list + detail -->
-      <div class="row g-3">
-        <!-- case list -->
-        <div class="col-12 col-lg-5">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0">Assigned Cases</h5>
-            <div class="d-flex gap-2">
-              <button id="filterBtn" class="btn btn-sm btn-light"><i class="bi bi-funnel"></i> Filter</button>
-              <button id="sortBtn" class="btn btn-sm btn-light"><i class="bi bi-funnel-fill"></i> Sort</button>
-            </div>
-          </div>
-
-          <div class="case-list d-flex flex-column gap-3">
-            <!-- selected -->
-            <div class="case-card selected" data-case="FIR-2023-08-1123">
-              <div class="d-flex justify-content-between">
-                <div class="fw-bold">FIR-2023-08-1123</div>
-                <div><span class="badge badge-status-high small px-2 py-1">High</span></div>
-              </div>
-              <div class="muted small">Robbery at Downtown Bank</div>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <div class="d-flex gap-2 align-items-center">
-                  <i class="bi bi-camera-video"></i>
-                  <i class="bi bi-mic"></i>
-                  <i class="bi bi-file-earmark-text"></i>
-                </div>
-                <div class="small muted">
-                  <span class="badge bg-info text-white small">New Evidence Added</span>
-                  <span class="ms-2">2 hours ago</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="case-card" data-case="FIR-2023-08-1120">
-              <div class="d-flex justify-content-between">
-                <div class="fw-semibold">FIR-2023-08-1120</div>
-                <div><span class="badge badge-status-medium small px-2 py-1">Medium</span></div>
-              </div>
-              <div class="muted small">Cyberbullying Complaint</div>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <div class="d-flex gap-2 align-items-center">
-                  <i class="bi bi-chat-text"></i>
-                  <i class="bi bi-image"></i>
-                </div>
-                <div class="small muted">
-                  <span class="badge bg-info text-white small">In Progress</span>
-                  <span class="ms-2">1 day ago</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="case-card" data-case="FIR-2023-08-1115">
-              <div class="d-flex justify-content-between">
-                <div class="fw-semibold">FIR-2023-08-1115</div>
-                <div><span class="badge bg-secondary small px-2 py-1">Low</span></div>
-              </div>
-              <div class="muted small">Vandalism Report</div>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <div class="d-flex gap-2 align-items-center">
-                  <i class="bi bi-file-earmark-text"></i>
-                </div>
-                <div class="small muted">
-                  <span class="badge bg-secondary small">Pending Police Input</span>
-                  <span class="ms-2">3 days ago</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- detail panel -->
-        <div class="col-12 col-lg-7">
-          <div class="detail-panel">
-            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-              <div>
-                <h5 class="mb-0">Viewing Case: <span class="text-primary">FIR-2023-08-1123</span></h5>
-              </div>
-              <div>
-                <button class="btn btn-primary btn-sm" id="startAnalysisBtn"><i class="bi bi-gear"></i> Start Analysis</button>
-              </div>
-            </div>
-
-            <!-- tabs -->
-            <div class="mb-3 border-bottom">
-              <ul class="nav nav-tabs" id="detailTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#aiAnalysis" type="button" role="tab">AI Analysis Suite</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#evidenceLocker" type="button" role="tab">Evidence Locker</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#caseSummary" type="button" role="tab">Case Summary</button>
-                </li>
-              </ul>
-            </div>
-
-            <div class="tab-content flex-grow-1" style="min-height:220px;">
-              <div class="tab-pane fade show active" id="aiAnalysis" role="tabpanel">
-                <h6 class="fw-semibold">Video & Image Analysis</h6>
-
-                <div class="video-thumb mb-2" style="height:260px;">
-                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxI3mxwGkqfrKBDWpN0b5TisIqCSknPfTUXF36K79Z56jlAIv8EhlWxjKl38yn6ABTEd2tknzUSumJu0teVYsIXLBoXFTNHnATLmIqrtMZsM3n3VThscXso8UjiyAbN5PdPOzWtgcxw5k9532e-Vm4unkJmvdytYvfFBztcoY3GqXQVsjj8C_4LDunaa8QsitHXJRngSbrY2fsnJWsnKQrgXaodotu0q7J7qvVjC5kz9QLnGPhAfBnIVh6iMXgU0bGGIqOxjkGfCEx" alt="cctv" class="w-100 h-100 object-fit-cover">
-                  <div class="play-btn">
-                    <button id="playVideo" class="btn btn-light btn-lg rounded-circle shadow"><i class="bi bi-play-fill fs-3"></i></button>
-                  </div>
-                </div>
-
-                <p class="muted small">CCTV_Main_Lobby_1.mp4 - Face detection markers & object recognition available.</p>
-
-                <div class="mt-3">
-                  <h6 class="fw-semibold">Audio Analysis</h6>
-                  <div class="p-3 rounded d-flex gap-3" style="background:var(--card-bg); border:1px solid var(--bs-border);">
-                    <div style="width:42%; background:linear-gradient(90deg,#e9ecef,#dee2e6);" class="rounded"></div>
-                    <div style="flex:1;">
-                      <div class="fw-medium small">AI-Generated Transcript</div>
-                      <div class="muted small">"Speaker 1: Give me all the money... Speaker 2: (muffled)..."</div>
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Forensic Analysis Dashboard</h1>
+                        <p class="text-gray-600">Welcome back, {{ Auth::user()->name }}</p>
                     </div>
-                  </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                            <i class="fas fa-user-shield mr-2"></i>
+                            Forensic Analyst
+                        </span>
+                        <button class="p-2 rounded-full hover:bg-gray-100">
+                            <i class="fas fa-bell text-gray-600"></i>
+                        </button>
+                    </div>
                 </div>
+            </div>
+        </header>
 
-              </div>
+      
 
-              <div class="tab-pane fade" id="evidenceLocker" role="tabpanel">
-                <h6 class="fw-semibold">Evidence Locker</h6>
-                <p class="muted small">List of uploaded media, documents and annotations.</p>
-              </div>
 
-              <div class="tab-pane fade" id="caseSummary" role="tabpanel">
-                <h6 class="fw-semibold">Case Summary</h6>
-                <p class="muted small">Auto-generated summary and extracted findings ready for review.</p>
-              </div>
+
+<div class="row g-3 mb-4">
+
+    <!-- New Cases Assigned -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="muted small">New Cases Forwarded (This Month)</div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-folder-plus"></i>
+                </div>
             </div>
 
-          </div>
-        </div>
-      </div>
+            <div class="d-flex align-items-end gap-2">
+                <div class="fs-3 fw-bold">{{ $currentMonthCases }}</div>
 
-     
- 
+                @if($percentageChange >= 0)
+                    <div class="text-success small">+{{ $percentageChange }}%</div>
+                @else
+                    <div class="text-danger small">{{ $percentageChange }}%</div>
+                @endif
+            </div>
+
+            <div class="small text-muted">Total Forwarded Cases: {{ $totalCases }}</div>
+        </div>
+    </div>
+
+
+    <!-- High Priority -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="muted small">High-Priority Cases (This Month)</div>
+                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                    <i class="bi bi-exclamation-octagon"></i>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-end gap-2 ">
+                <div class="fs-3 fw-bold">{{ $currentMonthHighPriority }}</div>
+
+                @if($percentageHighPriority >= 0)
+                    <div class="text-success small">+{{ $percentageHighPriority }}%</div>
+                @else
+                    <div class="text-danger small">{{ $percentageHighPriority }}%</div>
+                @endif
+              </div>
+              
+              <div class="small text-muted">Total High Priority Cases: {{ $highPriority }}</div>
+        </div>
+    </div>
+
+
+    <!-- Pending Cases -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="muted small">Cases Pending Review (This Month)</div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-end gap-2">
+                <div class="fs-3 fw-bold">{{ $pendingCases }}</div>
+
+                @if($percentagePending >= 0)
+                    <div class="text-success small">+{{ $percentagePending }}%</div>
+                @else
+                    <div class="text-danger small">{{ $percentagePending }}%</div>
+                @endif
+            </div>
+
+            <div class="small text-muted">Total Pending Cases: {{ $pendingCases }}</div>
+        </div>
+    </div>
+
+
+    <!-- Completed Cases -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="muted small">Completed Cases (This Month)</div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-end gap-2">
+                <div class="fs-3 fw-bold">{{ $currentMonthCompleted }}</div>
+
+                @if($percentageChangeCompleted >= 0)
+                    <div class="text-success small">+{{ $percentageChangeCompleted }}%</div>
+                @else
+                    <div class="text-danger small">{{ $percentageChangeCompleted }}%</div>
+                @endif
+            </div>
+
+            <div class="small text-muted">Total Completed Cases: {{ $completedCases }}</div>
+
+        </div>
+    </div>
+
 </div>
+
+{{-- charts --}}
+ <div class="row">
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="card-title">Forwarded Cases (Monthly)</h4>
+
+            <form method="GET" action="{{ route('forensic.dashboard') }}">
+                <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                    @foreach($years as $y)
+                        <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>
+                            {{ $y }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
+
+        <div class="card-body">
+            <canvas id="forwardedCasesChart"></canvas>
+        </div>
+    </div>
+</div>
+
+   <div class="col-md-6" >
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Monthly Case Statistics Overview</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="casesDonut" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>{{-- row --}}
+
+
+
+
+         
+     <div class="row mt-4 m-2">
+    <!-- Left: Case List -->
+    <div class="col-7 p-3 bg-white rounded-xl shadow me-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">Forwarded Cases</h5>
+            <form method="GET" class="d-flex gap-2">
+                <select name="severity" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Severities</option>
+                    <option value="high" {{ request('severity') == 'high' ? 'selected' : '' }}>High</option>
+                    <option value="medium" {{ request('severity') == 'medium' ? 'selected' : '' }}>Medium</option>
+                    <option value="low" {{ request('severity') == 'low' ? 'selected' : '' }}>Low</option>
+                </select>
+
+                <select name="order" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="desc" {{ request('order') == 'desc' ? 'selected' : '' }}>Newest First</option>
+                    <option value="asc" {{ request('order') == 'asc' ? 'selected' : '' }}>Oldest First</option>
+                </select>
+            </form>
+        </div>
+
+        <div class="case-list d-flex flex-column gap-3">
+            @foreach($forwardedCases as $case)
+                @php
+                    switch(strtolower($case->severity ?? 'low')) {
+                        case 'high': $badgeClass = 'bg-danger text-white'; break;
+                        case 'medium': $badgeClass = 'bg-warning text-dark'; break;
+                        default: $badgeClass = 'bg-secondary text-white';
+                    }
+                    $timeAgo = $case->updated_at
+                        ? $case->updated_at->diffForHumans()
+                        : ($case->created_at ? $case->created_at->diffForHumans() : 'N/A');
+
+                    $statusBadgeClass = match(strtolower($case->status ?? '')) {
+                        'received' => 'bg-primary text-white',
+                        'pending' => 'bg-warning text-dark',
+                        'in progress' => 'bg-primary text-white',
+                        'forwarded' => 'bg-info text-white',
+                        'reviewing' => 'bg-secondary text-white',
+                        'completed' => 'bg-success text-white',
+                        'rejected' => 'bg-danger text-white',
+                        'resolved' => 'bg-success text-white',
+                        default => 'bg-dark text-white',
+                    };
+                @endphp
+<hr class="m-0 p-0">
+                <div class="case-card {{ $loop->first ? 'selected' : '' }}" data-case="{{ $case->track_id }}">
+                    <div class="d-flex justify-content-between">
+                        <div class="fw-bold">{{ $case->track_id }}</div>
+                        <div>
+                            <span class="badge {{ $badgeClass }} small px-2 py-1">{{ ucfirst($case->severity ?? 'Low') }}</span>
+                        </div>
+                    </div>
+                    <div class="muted small">{{ $case->subject ?? 'No title' }}</div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="d-flex gap-2 align-items-center">
+                            @if($case->media->isNotEmpty())
+                                @foreach($case->media as $media)
+                                    @switch(strtolower($media->file_type))
+                                        @case('video') <i class="bi bi-camera-video"></i> @break
+                                        @case('audio') <i class="bi bi-mic"></i> @break
+                                        @case('image') <i class="bi bi-image"></i> @break
+                                        @case('document') <i class="bi bi-file-earmark-text"></i> @break
+                                        @case('archive') <i class="bi bi-archive"></i> @break
+                                    @endswitch
+                                @endforeach
+                            @endif
+                        </div>
+                        <div class="small muted">
+                            @if($case->status)
+                                <span class="badge {{ $statusBadgeClass }} small px-2 py-1">{{ ucfirst($case->status) }}</span>
+                            @endif
+                            <span class="ms-2">{{ $timeAgo }}</span>
+                        </div>
+                    </div>
+                    
+                </div>
+            @endforeach
+
+            @if($forwardedCases->count() == 5)
+                <div class="mt-2 text-center">
+                    <a href="{{ route('forensic.assigned-cases') }}" class="btn btn-sm btn-primary">View All Cases</a>
+                </div>
+            @endif
+
+            @if($forwardedCases->isEmpty())
+                <div class="text-center text-muted small">No cases found.</div>
+            @endif
+        </div>
+    </div>
+
+ <!-- Performance Metrics -->
+                <div class="bg-white rounded-xl shadow p-6 col-4">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-6">Performance Metrics</h2>
+                    <div class="space-y-4">
+                        <!-- Completion Rate -->
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-gray-600">Completion Rate</p>
+                                    <p class="text-2xl font-bold text-gray-900">{{ $performanceMetrics['completionRate'] }}%</p>
+                                </div>
+                                <div class="w-16 h-16 relative">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-lg font-bold">{{ $performanceMetrics['completionRate'] }}%</span>
+                                    </div>
+                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                        <circle cx="18" cy="18" r="16" fill="none" stroke="#e5e7eb" stroke-width="2"/>
+                                        <circle cx="18" cy="18" r="16" fill="none" stroke="#10b981" stroke-width="2"
+                                                stroke-dasharray="{{ $performanceMetrics['completionRate'] * 1.6 }} 160"
+                                                stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">
+                                {{ $performanceMetrics['monthlyCompleted'] }} of {{ $performanceMetrics['monthlyAssigned'] }} cases completed
+                            </p>
+                        </div>
+
+                        <!-- Avg Resolution Time -->
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-gray-600">Avg. Resolution Time</p>
+                                    <p class="text-2xl font-bold text-gray-900">{{ $performanceMetrics['avgResolutionTime'] }}h</p>
+                                </div>
+                                <i class="fas fa-clock text-3xl text-blue-500"></i>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Average hours to resolve a case</p>
+                        </div>
+
+                        <!-- Severity Distribution -->
+                        <div class="p-4 bg-purple-50 rounded-lg">
+                            <p class="text-sm text-gray-600 mb-3">Severity Distribution</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-red-600">High</span>
+                                    <span class="font-medium">{{ $severityDistribution['high'] }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: {{ $severityDistribution['high'] }}%"></div>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-yellow-600">Medium</span>
+                                    <span class="font-medium">{{ $severityDistribution['medium'] }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $severityDistribution['medium'] }}%"></div>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-green-600">Low</span>
+                                    <span class="font-medium">{{ $severityDistribution['low'] }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: {{ $severityDistribution['low'] }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+
+      
+
+    
+           
+    </div>
+
+   
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+ <!-- JavaScript for Charts -->
+    <script>
+        // Monthly Activity Chart
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        new Chart(activityCtx, {
+            type: 'line',
+            data: {
+                labels: @json($chartData['labels']),
+                datasets: [
+                    {
+                        label: 'Assigned',
+                        data: @json($chartData['datasets']['assigned']['data']),
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Completed',
+                        data: @json($chartData['datasets']['completed']['data']),
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Yearly Distribution Chart
+        const yearlyCtx = document.getElementById('yearlyChart').getContext('2d');
+        new Chart(yearlyCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($yearlyAnalytics['labels']),
+                datasets: [{
+                    label: 'Cases',
+                    data: @json($yearlyAnalytics['data']),
+                    backgroundColor: '#8B5CF6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        function updateYearlyChart(year) {
+            window.location.href = `?year=${year}`;
+        }
+
+        function viewCase(trackId) {
+            // AJAX call to load case details
+            fetch(`/dashboard/case/${trackId}`)
+                .then(response => response.text())
+                .then(html => {
+                    // Open modal with case details
+                    const modal = document.createElement('div');
+                    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full';
+                    modal.innerHTML = html;
+                    document.body.appendChild(modal);
+                });
+        }
+    </script>
+
+<script>
+const forwardedMonths = @json($months);
+const forwardedCounts = @json($forwardedCounts);
+
+new Chart(document.getElementById("forwardedCasesChart"), {
+    type: 'line',
+    data: {
+        labels: forwardedMonths,
+        datasets: [{
+            label: "Forwarded Cases",
+            data: forwardedCounts,
+            borderColor: "#0d6efd",
+            backgroundColor: "rgba(13, 110, 253, 0.2)",
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { precision: 0 }
+            }
+        }
+    }
+});
+</script>
+
+
+
+<script>
+const data = {
+    labels: [ "High Priority", "Pending", "Completed"],
+    datasets: [
+        {
+            data: [
+              
+                @json(array_sum($highPriorityData)),
+                @json(array_sum($pendingData)),
+                @json(array_sum($completedData))
+            ],
+            backgroundColor: [
+                "rgba(13, 110, 253, 0.7)",   // Blue
+                "rgba(220, 53, 69, 0.7)",    // Red
+                "rgba(255, 193, 7, 0.7)",    // Yellow
+                "rgba(25, 135, 84, 0.7)"     // Green
+            ],
+            borderColor: [
+                "rgba(13, 110, 253, 1)",
+                "rgba(220, 53, 69, 1)",
+                "rgba(255, 193, 7, 1)",
+                "rgba(25, 135, 84, 1)"
+            ],
+            borderWidth: 2
+        }
+    ]
+};
+
+new Chart(document.getElementById("casesDonut"), {
+    type: "doughnut",
+    data: data,
+    options: {
+        responsive: true,
+        cutout: "60%", // donut thickness
+        plugins: {
+            legend: {
+                position: "bottom",
+                labels: { padding: 20 }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(ctx) {
+                        return ctx.label + ": " + ctx.raw + " cases";
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.case-card');
+    const detailPanel = document.getElementById('detailPanelContainer');
+
+    // Function to load case detail via AJAX
+    function loadCaseDetail(trackId) {
+        fetch(`/forensic/case/${trackId}`)
+            .then(response => response.text())
+            .then(html => {
+                detailPanel.innerHTML = html;
+            })
+            .catch(err => {
+                console.error(err);
+                detailPanel.innerHTML = '<div class="text-danger">Failed to load case details.</div>';
+            });
+    }
+
+    // Click listener for all case cards
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Highlight selected
+            cards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+
+            // Load detail
+            loadCaseDetail(card.dataset.case);
+        });
+    });
+
+    // Optionally: load first case on page load
+    if (cards.length > 0) {
+        loadCaseDetail(cards[0].dataset.case);
+    }
+});
+</script>
+
 @endsection
+
+
