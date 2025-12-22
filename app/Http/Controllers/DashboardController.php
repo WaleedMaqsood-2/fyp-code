@@ -3,8 +3,10 @@ namespace App\Http\Controllers;
 
 use App\Helpers\NotificationHelper; // Add this
 use App\Models\AiUsage;
+use App\Models\Complaint;
 use App\Models\Media;
 use App\Models\PendingSummaries;
+use App\Models\PublicAlert;
 use App\Models\RecentActivities;
 use App\Models\User;
 use Carbon\Carbon;
@@ -45,6 +47,8 @@ class DashboardController extends Controller
         $totalMedia = Media::count(); 
         $pendingSummaries = PendingSummaries::countPendingSummaries();
         $aiUsage = AiUsage::countAiUsage();
+        $alerts=PublicAlert::countPublicAlerts();
+        $totalComplaints=Complaint::count();
 
         // ✅ **NEW: Dashboard access notification for admin**
         if (Auth::user()->role_id == 1) {
@@ -72,6 +76,7 @@ class DashboardController extends Controller
         } else {
             $recentActivities = $query->paginate(10);
         }
+   
 
         return view('admin.dashboard', [
             'months' => $months,
@@ -82,6 +87,8 @@ class DashboardController extends Controller
             'totalMedia' => $totalMedia,
             'pendingSummaries' => $pendingSummaries,
             'aiUsage' => $aiUsage,
+            'alerts' => $alerts,
+            'totalComplaints' => $totalComplaints,
             'recentActivities' => $recentActivities,
             'showAll' => $request->get('show') === 'all',
         ]);

@@ -17,17 +17,33 @@
 
           <div class="container container-main">
               <!-- Header -->
-              <header class="d-flex justify-content-between align-items-center mb-4">
-                  <h1 class="h3 fw-bold">📂 Media Management</h1>
-              </header>
+            <div class="media-header">
+        <div class="header-left">
+            <h1 class="media-title">
+                <i class="fas fa-photo-video"></i>
+                Media Management
+            </h1>
+            <p class="mb-0 opacity-90">Manage and organize all media files uploaded to the system</p>
+        </div>
+        <div class="stats-badge">
+            <i class="fas fa-database"></i>
+            {{ $media->total() }} Files • {{ $media->count() }} Displayed
+        </div>
+    </div>
 
               <div class="row g-4">
                   <!-- Table -->
                   <div class="col-lg-8">
                       <div class="mb-3 position-relative">
                         
-                          <input type="text" class="form-control search-input"
-                              placeholder="Search files, keywords, or case ID...">
+                        <div class="search-section">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" 
+                   placeholder="Search by filename, case ID, or description...">
+        </div>
+    </div>
+                         
                       </div>
 
                       <div class="panel p-2">
@@ -45,7 +61,9 @@
                                   </thead>
                                  
            <tbody>
+            
   @foreach($media as $file)
+  
       @include('admin.partials.media-search-result', ['file' => $file])
   @endforeach
 </tbody>
@@ -213,6 +231,7 @@
     $searchAction = route('media.search');
     $searchPlaceholder = 'Search Media...';
   @endphp
+ 
   <script>
   // 📂 media.js
 
@@ -394,3 +413,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
   </script>
+

@@ -23,5 +23,8 @@ class PublicAlert extends Model
  protected $casts = [
         'media' => 'array', // Laravel automatically JSON encode/decode karega
     ];
- 
+ public static function countPublicAlerts()
+    {
+        return self::count();
+    }
 }

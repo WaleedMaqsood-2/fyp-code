@@ -1,4 +1,773 @@
-{{-- resources/views/transcription/form.blade.php --}}
+{{-- <form id="transcribeForm" enctype="multipart/form-data">
+    @csrf
+    <input type="file" name="audio" required>
+    <select name="language">
+        <option value="ur">Urdu</option>
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+    </select>
+    <button type="submit">Transcribe</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+document.getElementById('transcribeForm').onsubmit = async function(e){
+    e.preventDefault();
+    let formData = new FormData(this);
+    let res = await fetch("{{ route('offline.upload') }}",{
+        method:'POST',
+        body:formData
+    });
+    let data = await res.json();
+    if(data.success){
+        document.getElementById('result').innerHTML = `
+            <strong>Urdu:</strong> ${data.urdu_text} <br>
+            <strong>Roman:</strong> ${data.roman_text} <br>
+            <strong>Confidence:</strong> ${data.confidence}
+        `;
+    }else{
+        document.getElementById('result').innerHTML = `<strong>Error:</strong> ${data.error}`;
+    }
+};
+</script> --}}
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+@endif
+
+<form action="{{ route('forensic.transcribe') }}" method="POST">
+    @csrf
+
+    <div class="mb-3">
+        <label>Select Media</label>
+        <select name="media_id" class="form-control" required>
+          @foreach($mediaFiles as $m)
+
+<div class="card mb-3 shadow-sm">
+    <div class="card-body">
+
+        <h6>
+            {{ ucfirst($m->file_type) }} —
+            <small>{{ $m->file_path }}</small>
+        </h6>
+
+        {{-- Generate Transcript --}}
+        <form action="{{ route('forensic.transcribe') }}" method="POST" class="d-inline">
+            @csrf
+            <input type="hidden" name="media_id" value="{{ $m->id }}">
+            <button type="submit" class="btn btn-sm btn-warning">
+                <i class="material-icons">graphic_eq</i> Generate Transcript
+            </button>
+        </form>
+
+        {{-- View Transcript --}}
+        <button
+            class="btn btn-sm btn-outline-info"
+            data-bs-toggle="modal"
+            data-bs-target="#transcriptModal{{ $m->id }}">
+            <i class="material-icons">description</i> View Transcript
+        </button>
+
+    </div>
+</div>
+
+{{-- Transcript Modal --}}
+<div class="modal fade" id="transcriptModal{{ $m->id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    🎯 Transcript Preview (Media #{{ $m->id }})
+                </h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if(optional($m->transcription)->transcript)
+                    <div class="border rounded p-3 bg-light" style="white-space: pre-line;">
+                        {{ $m->transcription->transcript }}
+                    </div>
+                @else
+                    <div class="alert alert-warning text-center">
+                        No transcript available for this media.
+                    </div>
+                @endif
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@endforeach
+
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-warning">
+        <i class="material-icons">graphic_eq</i> Generate Transcript
+    </button>
+</form>
+
+
+
+
+{{-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini API Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6">Gemini AI Demo</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <form id="promptForm" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-sm font-medium mb-2">Enter your prompt:</label>
+                    <textarea 
+                        id="prompt" 
+                        name="prompt" 
+                        rows="4" 
+                        class="w-full p-3 border rounded-lg"
+                        placeholder="Ask me anything..."
+                    ></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Temperature (0-1)</label>
+                        <input 
+                            type="number" 
+                            id="temperature" 
+                            name="temperature" 
+                            step="0.1" 
+                            min="0" 
+                            max="1" 
+                            value="0.7" 
+                            class="w-full p-2 border rounded"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Max Tokens</label>
+                        <input 
+                            type="number" 
+                            id="max_tokens" 
+                            name="max_tokens" 
+                            min="1" 
+                            max="2048" 
+                            value="500" 
+                            class="w-full p-2 border rounded"
+                        >
+                    </div>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+                >
+                    Generate Response
+                </button>
+            </form>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Response:</h2>
+            <div id="response" class="min-h-[200px] p-4 bg-gray-50 rounded-lg">
+                <p class="text-gray-500">Response will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('promptForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                prompt: document.getElementById('prompt').value,
+                temperature: parseFloat(document.getElementById('temperature').value),
+                max_tokens: parseInt(document.getElementById('max_tokens').value)
+            };
+            
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = '<p class="text-blue-500">Generating response...</p>';
+            
+            try {
+                const response = await fetch('/api/gemini/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    responseDiv.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="p-3 bg-blue-50 rounded">
+                                <strong>Prompt:</strong>
+                                <p>${data.data.prompt}</p>
+                            </div>
+                            <div class="p-3 bg-green-50 rounded">
+                                <strong>Response:</strong>
+                                <p>${data.data.response.replace(/\n/g, '<br>')}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    responseDiv.innerHTML = `<p class="text-red-500">Error: ${data.message}</p>`;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `<p class="text-red-500">Network error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html> --}}
+{{-- resources/views/transcription/whisper_form.blade.php --}}
+{{-- <!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Whisper API ٹرانککرپشن سسٹم</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Same styles as before, just updating the form */
+        .api-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .api-badge {
+            background: #10B981;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body class="rtl">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h1 class="text-white mb-3">
+                        <i class="fas fa-robot me-2"></i>Whisper API ٹرانککرپشن
+                    </h1>
+                    <p class="text-white-50">OpenAI کے طاقتور Whisper API کے ذریعے آڈیو سے متن</p>
+                    
+                    <!-- API Info -->
+                    <div class="api-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1"><i class="fas fa-bolt me-2"></i>OpenAI Whisper API</h5>
+                                <p class="mb-0 small">ہر مہینے $5 تک free | 250 minutes تک audio</p>
+                            </div>
+                            <span class="api-badge">
+                                <i class="fas fa-check me-1"></i>Active
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Card -->
+                <div class="card">
+                    <div class="card-body p-5">
+                        <!-- Upload Form -->
+                        <form id="whisperTranscriptionForm" enctype="multipart/form-data">
+                            @csrf
+                            
+                            <!-- File Upload Section -->
+                            <div class="mb-4">
+                                <h4 class="mb-4 text-primary">
+                                    <i class="fas fa-file-audio me-2"></i>آڈیو فائل منتخب کریں
+                                </h4>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">فائل اپ لوڈ کریں:</label>
+                                    <div class="input-group input-group-lg">
+                                        <input type="file" 
+                                               class="form-control" 
+                                               id="audioFile" 
+                                               name="audio"
+                                               accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac,.mp4,.mpeg"
+                                               required>
+                                        <button class="btn btn-primary" type="button" onclick="document.getElementById('audioFile').click()">
+                                            <i class="fas fa-folder-open me-2"></i>براؤز
+                                        </button>
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        زیادہ سے زیادہ سائز: 25MB | فارمیٹس: MP3, WAV, M4A, OGG, FLAC, MP4
+                                    </div>
+                                </div>
+                                
+                                <!-- Audio Preview -->
+                                <div id="audioPreview" class="mb-4" style="display: none;">
+                                    <label class="form-label">آڈیو کا پیش نظارہ:</label>
+                                    <audio id="audioPlayer" controls class="w-100 rounded"></audio>
+                                    <div id="fileInfo" class="mt-2 p-2 bg-light rounded"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Language Selection -->
+                            <div class="mb-4">
+                                <h4 class="mb-4 text-primary">
+                                    <i class="fas fa-language me-2"></i>زبان منتخب کریں
+                                </h4>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <div class="language-option text-center" onclick="selectLanguage('ur')" id="langUr">
+                                            <i class="fas fa-flag fa-2x mb-2 text-success"></i>
+                                            <h6>اردو</h6>
+                                            <small>Urdu</small>
+                                            <input class="form-check-input mt-2" type="radio" name="language" value="ur" checked>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="language-option text-center" onclick="selectLanguage('en')" id="langEn">
+                                            <i class="fas fa-flag-usa fa-2x mb-2 text-primary"></i>
+                                            <h6>انگریزی</h6>
+                                            <small>English</small>
+                                            <input class="form-check-input mt-2" type="radio" name="language" value="en">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="language-option text-center" onclick="selectLanguage('hi')" id="langHi">
+                                            <i class="fas fa-flag fa-2x mb-2 text-warning"></i>
+                                            <h6>ہندی</h6>
+                                            <small>Hindi</small>
+                                            <input class="form-check-input mt-2" type="radio" name="language" value="hi">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="language-option text-center" onclick="selectLanguage('ar')" id="langAr">
+                                            <i class="fas fa-flag fa-2x mb-2 text-danger"></i>
+                                            <h6>عربی</h6>
+                                            <small>Arabic</small>
+                                            <input class="form-check-input mt-2" type="radio" name="language" value="ar">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Output Options -->
+                            <div class="mb-4">
+                                <h4 class="mb-4 text-primary">
+                                    <i class="fas fa-cogs me-2"></i>آؤٹ پٹ اختیارات
+                                </h4>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">آؤٹ پٹ فارمیٹ:</label>
+                                        <select class="form-select" name="output_format" id="outputFormat">
+                                            <option value="both" selected>اردو + رومن</option>
+                                            <option value="urdu">صرف اردو</option>
+                                            <option value="roman">صرف رومن</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">ماڈل:</label>
+                                        <select class="form-select" name="model_size" id="modelSize" disabled>
+                                            <option value="whisper-1" selected>Whisper-1 (OpenAI)</option>
+                                        </select>
+                                        <div class="form-text small">
+                                            <i class="fas fa-lock me-1"></i> OpenAI Whisper API صرف ایک ماڈل سپورٹ کرتی ہے
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Buttons -->
+                            <div class="text-center mt-5">
+                                <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
+                                    <i class="fas fa-magic me-2"></i>Whisper API کے ذریعے ٹرانککرپشن کریں
+                                </button>
+                                
+                                <button type="button" class="btn btn-outline-secondary btn-lg ms-2" onclick="resetForm()">
+                                    <i class="fas fa-redo me-2"></i>دوبارہ شروع کریں
+                                </button>
+                                
+                                <button type="button" class="btn btn-info btn-lg ms-2" onclick="testAPI()">
+                                    <i class="fas fa-vial me-2"></i>API ٹیسٹ
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Loading -->
+                        <div class="text-center my-5" id="loading" style="display: none;">
+                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="visually-hidden">لوڈ ہو رہا ہے...</span>
+                            </div>
+                            <h5 class="mt-3 text-primary">Whisper API ٹرانککرپشن ہو رہی ہے...</h5>
+                            <p class="text-muted">OpenAI سرورز پر آپ کی آڈیو پروسیس ہو رہی ہے</p>
+                            <div class="progress mt-3" style="height: 10px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Results -->
+                        <div id="resultsSection" style="display: none;">
+                            <hr class="my-5">
+                            
+                            <h4 class="mb-4 text-success">
+                                <i class="fas fa-check-circle me-2"></i>ٹرانککرپشن کا نتیجہ
+                                <span class="badge bg-success float-start">OpenAI Whisper API</span>
+                            </h4>
+                            
+                            <!-- Confidence -->
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label mb-0">اعتماد کی سطح:</label>
+                                    <span class="fw-bold" id="confidencePercent">95%</span>
+                                </div>
+                                <div class="progress" style="height: 15px;">
+                                    <div class="progress-bar bg-success" id="confidenceFill" style="width: 95%"></div>
+                                </div>
+                                <div class="form-text text-end">
+                                    <i class="fas fa-shield-alt me-1"></i> OpenAI Whisper API اعلی درستگی
+                                </div>
+                            </div>
+                            
+                            <!-- Urdu Text -->
+                            <div class="mb-4">
+                                <label class="form-label">اردو متن:</label>
+                                <div class="result-box p-3 border rounded bg-light" id="urduResult" style="min-height: 150px;">
+                                    -- نتیجہ یہاں ظاہر ہوگا --
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('urduResult')">
+                                        <i class="fas fa-copy me-1"></i>کاپی کریں
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success ms-2" onclick="speakText('urdu')">
+                                        <i class="fas fa-volume-up me-1"></i>سنائیں
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info ms-2" onclick="downloadText('urdu')">
+                                        <i class="fas fa-download me-1"></i>ڈاؤن لوڈ
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Roman Text -->
+                            <div class="mb-4" id="romanSection">
+                                <label class="form-label">رومن متن:</label>
+                                <div class="result-box p-3 border rounded bg-light" id="romanResult" style="min-height: 150px;">
+                                    -- Roman text will appear here --
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('romanResult')">
+                                        <i class="fas fa-copy me-1"></i>کاپی کریں
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success ms-2" onclick="speakText('roman')">
+                                        <i class="fas fa-volume-up me-1"></i>سنائیں
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info ms-2" onclick="downloadText('roman')">
+                                        <i class="fas fa-download me-1"></i>ڈاؤن لوڈ
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- API Info -->
+                            <div class="alert alert-info mt-4">
+                                <h6><i class="fas fa-info-circle me-2"></i>Whisper API معلومات</h6>
+                                <p class="mb-2 small">
+                                    <strong>ماڈل:</strong> whisper-1<br>
+                                    <strong>درستگی:</strong> اعلی (95%+)<br>
+                                    <strong>لاگت:</strong> $0.006 فی منٹ (ہر مہینے $5 تک free)<br>
+                                    <strong>تکمیل وقت:</strong> 10-30 سیکنڈز
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="text-center mt-4">
+                    <p class="text-white">
+                        <i class="fas fa-code me-2"></i>
+                        OpenAI Whisper API v1 | Powered by Laravel
+                    </p>
+                    <p class="text-white-50 small">
+                        © 2024 Whisper Transcription System | تمام حقوق محفوظ ہیں
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            selectLanguage('ur');
+            updateFilePreview();
+        });
+        
+        // File Upload Preview
+        document.getElementById('audioFile').addEventListener('change', updateFilePreview);
+        
+        function updateFilePreview() {
+            const fileInput = document.getElementById('audioFile');
+            const file = fileInput.files[0];
+            const preview = document.getElementById('audioPreview');
+            const player = document.getElementById('audioPlayer');
+            const fileInfo = document.getElementById('fileInfo');
+            
+            if (file) {
+                // Check file size (25MB limit for Whisper API)
+                if (file.size > 25 * 1024 * 1024) {
+                    alert('فائل کا سائز 25MB سے زیادہ نہیں ہونا چاہیے!');
+                    fileInput.value = '';
+                    preview.style.display = 'none';
+                    return;
+                }
+                
+                preview.style.display = 'block';
+                const url = URL.createObjectURL(file);
+                player.src = url;
+                
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                fileInfo.innerHTML = `
+                    <strong><i class="fas fa-file-audio me-1"></i>فائل کی معلومات:</strong><br>
+                    <strong>نام:</strong> ${file.name}<br>
+                    <strong>سائز:</strong> ${fileSizeMB} MB<br>
+                    <strong>قسم:</strong> ${file.type || 'Unknown'}
+                `;
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+        // Language Selection
+        function selectLanguage(lang) {
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.remove('active', 'border-primary');
+            });
+            
+            const selected = document.getElementById(`lang${lang.charAt(0).toUpperCase() + lang.slice(1)}`);
+            if (selected) {
+                selected.classList.add('active', 'border-primary');
+                selected.querySelector('input[type="radio"]').checked = true;
+            }
+        }
+        
+        // Form Submission
+        document.getElementById('whisperTranscriptionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerHTML = 
+                '<i class="fas fa-spinner fa-spin me-2"></i>Whisper API پروسیس کر رہی ہے...';
+            
+            try {
+                // Send to Whisper API endpoint
+                const response = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                console.log('Whisper API response:', data);
+                
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Whisper API خرابی');
+                }
+                
+                // Show results
+                showResults(data);
+                
+                // Show success message
+                showAlert('کامیابی', 'Whisper API کے ذریعے ٹرانککرپشن مکمل ہو گئی!', 'success');
+                
+            } catch (error) {
+                console.error('Whisper API error:', error);
+                showAlert('خرابی', error.message, 'danger');
+                
+                // Show fallback message
+                document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('urduResult').textContent = 
+                    'Whisper API خرابی: ' + error.message + '\n\nبراہ کرم اپنی API key چیک کریں۔';
+                document.getElementById('romanResult').textContent = 
+                    'Whisper API Error: ' + error.message + '\n\nPlease check your API key.';
+            } finally {
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').innerHTML = 
+                    '<i class="fas fa-magic me-2"></i>Whisper API کے ذریعے ٹرانککرپشن کریں';
+            }
+        });
+        
+        // Show Results
+        function showResults(data) {
+            // Update confidence (Whisper API gives high confidence)
+            const confidence = (data.confidence || 0.95) * 100;
+            document.getElementById('confidenceFill').style.width = confidence + '%';
+            document.getElementById('confidencePercent').textContent = confidence.toFixed(0) + '%';
+            
+            // Update Urdu text
+            document.getElementById('urduResult').textContent = data.urdu_text || 'کوئی متن نہیں ملا';
+            
+            // Update Roman text
+            const outputFormat = document.getElementById('outputFormat').value;
+            const romanSection = document.getElementById('romanSection');
+            
+            if (outputFormat === 'urdu') {
+                romanSection.style.display = 'none';
+            } else {
+                romanSection.style.display = 'block';
+                document.getElementById('romanResult').textContent = data.roman_text || '';
+            }
+            
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Test API Connection
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/usage');
+                const data = await response.json();
+                
+                let message = 'Whisper API Connection Test:\n\n';
+                if (data.connection_test && data.connection_test.success) {
+                    message += '✅ API Connection Successful!\n';
+                    message += `Status: ${data.connection_test.status}\n`;
+                    message += `Models Available: ${data.connection_test.models}\n\n`;
+                    message += 'ℹ️ Free Tier: First $5/month free (approx. 250 minutes)';
+                } else {
+                    message += '❌ API Connection Failed!\n';
+                    message += `Error: ${data.connection_test?.error || 'Unknown error'}\n\n`;
+                    message += 'Please check:\n';
+                    message += '1. API Key in .env file\n';
+                    message += '2. Internet connection\n';
+                    message += '3. OpenAI account status';
+                }
+                
+                alert(message);
+                
+            } catch (error) {
+                alert('API Test Failed: ' + error.message);
+            }
+        }
+        
+        // Utility Functions
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text)
+                .then(() => showAlert('کامیابی', 'متن کاپی ہو گیا!', 'success'))
+                .catch(err => showAlert('خرابی', 'کاپی کرنے میں خرابی: ' + err, 'danger'));
+        }
+        
+        function speakText(type) {
+            const text = document.getElementById(type === 'urdu' ? 'urduResult' : 'romanResult').textContent;
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = type === 'urdu' ? 'ur-PK' : 'en-US';
+                speechSynthesis.speak(utterance);
+            } else {
+                showAlert('انتباہ', 'آپ کا براؤزر ٹیکسٹ ٹو اسپیچ سپورٹ نہیں کرتا', 'warning');
+            }
+        }
+        
+        function downloadText(type) {
+            const text = document.getElementById(type === 'urdu' ? 'urduResult' : 'romanResult').textContent;
+            const filename = `whisper_transcription_${type}_${Date.now()}.txt`;
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showAlert('کامیابی', 'فائل ڈاؤن لوڈ ہو گئی!', 'success');
+        }
+        
+        function showAlert(title, message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '1050';
+            alertDiv.style.minWidth = '300px';
+            
+            alertDiv.innerHTML = `
+                <strong>${title}:</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        function resetForm() {
+            document.getElementById('whisperTranscriptionForm').reset();
+            document.getElementById('audioPreview').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('submitBtn').disabled = false;
+            selectLanguage('ur');
+            showAlert('معلومات', 'فارم ری سیٹ ہو گیا', 'info');
+        }
+    </script>
+</body>
+</html> --}}
+
+{{-- resources/views/transcription/form.blade.php
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
@@ -471,73 +1240,56 @@
         
         // Form Submission
      // Complete fixed form submission with error handling
+
+// JavaScript میں form submission update کریں
+
 async function submitTranscriptionForm(formData) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    
+    // Show loading
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').innerHTML = 
+        '<i class="fas fa-spinner fa-spin me-2"></i>جاری ہے...';
+    
     try {
-        // Get CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        
-        // Show loading
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('submitBtn').disabled = true;
-        document.getElementById('submitBtn').innerHTML = 
-            '<i class="fas fa-spinner fa-spin me-2"></i>جاری ہے...';
-        
-        // Send request
         const response = await fetch('/transcribe/upload', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
+                'X-CSRF-TOKEN': csrfToken
             },
             body: formData
         });
         
         // Get response as text first
         const responseText = await response.text();
+        console.log('Raw response:', responseText.substring(0, 500));
         
-        // Debug: log response
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        console.log('Response first 500 chars:', responseText.substring(0, 500));
-        
-        // Check if response is HTML (starts with <!DOCTYPE)
-        if (responseText.trim().startsWith('<!DOCTYPE') || 
-            responseText.trim().startsWith('<html')) {
-            
-            // This is an HTML error page, not JSON
-            throw new Error(
-                'سرور سے HTML جواب آیا۔ ممکنہ وجوہات:\n' +
-                '1. CSRF token موجود نہیں\n' +
-                '2. Authentication required\n' +
-                '3. Route موجود نہیں\n' +
-                '4. Server error'
-            );
-        }
-        
-        // Try to parse as JSON
+        // Parse JSON
         let data;
         try {
             data = JSON.parse(responseText);
         } catch (parseError) {
             console.error('JSON parse error:', parseError);
-            throw new Error('سرور سے غلط فارمیٹ کا جواب: ' + responseText.substring(0, 200));
+            throw new Error('سرور سے غلط جواب آیا۔');
         }
         
-        // Check if successful
+        // Check response
         if (!response.ok) {
             throw new Error(data.error || `سرور خرابی: ${response.status}`);
         }
         
-        if (data.success) {
-            // Show results
+        if (data.success === false) {
+            throw new Error(data.error || 'ٹرانککرپشن ناکام ہوئی');
+        }
+        
+        // Show results - یہاں data.urdu_text اور data.roman_text ہونے چاہئیں
+        if (data.urdu_text) {
             showResults(data);
             addToHistory(data);
-            
-            // Success message
             showToast('کامیابی', 'ٹرانککرپشن مکمل ہو گئی!', 'success');
-            
         } else {
-            throw new Error(data.error || 'ٹرانککرپشن ناکام ہوئی');
+            throw new Error('ٹرانککرپشن کا نتیجہ خالی ہے۔');
         }
         
         return data;
@@ -545,11 +1297,11 @@ async function submitTranscriptionForm(formData) {
     } catch (error) {
         console.error('Transcription error:', error);
         
-        // Show error to user
+        // Show error
         showToast('خرابی', error.message, 'error');
         
-        // Also show in alert
-        alert(`ٹرانککرپشن میں خرابی:\n\n${error.message}\n\nبراہ کرم کنسول دیکھیں مزید تفصیلات کے لیے۔`);
+        // Show in alert box
+        alert('ٹرانککرپشن میں خرابی:\n\n' + error.message + '\n\nبراہ کرم کنسول دیکھیں۔');
         
         throw error;
         
@@ -562,6 +1314,33 @@ async function submitTranscriptionForm(formData) {
     }
 }
 
+// Update showResults function to handle new data structure
+function showResults(data) {
+    // Update confidence
+    const confidence = (data.confidence * 100).toFixed(1);
+    document.getElementById('confidenceFill').style.width = confidence + '%';
+    document.getElementById('confidencePercent').textContent = confidence + '%';
+    
+    // Update Urdu text
+    document.getElementById('urduResult').textContent = data.urdu_text || 'کوئی متن نہیں ملا';
+    
+    // Update Roman text
+    const romanText = data.roman_text || data.urdu_text || '';
+    document.getElementById('romanResult').textContent = romanText;
+    
+    // Show results section
+    document.getElementById('resultsSection').style.display = 'block';
+    
+    // Scroll to results
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    
+    // Log for debugging
+    console.log('Results shown:', {
+        urdu_length: data.urdu_text?.length,
+        roman_length: data.roman_text?.length,
+        confidence: data.confidence
+    });
+}
 // Toast notification function
 function showToast(title, message, type = 'info') {
     // Remove existing toast
@@ -972,4 +1751,4 @@ function clearForm() {
 }
     </script>
 </body>
-</html>
+</html> --}}

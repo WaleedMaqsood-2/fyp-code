@@ -1,6 +1,6 @@
 @extends('police.layouts.main')
-
-@section('title', 'Dashboard')
+<link rel="stylesheet" href="{{ asset('css/police/dashboard.css') }}">
+@section('title', 'Police Dashboard')
 
 @php
     if (!auth()->check()) {
@@ -10,488 +10,590 @@
 @endphp
 
 @section('content')
-<div class="container-fluid py-4">
-
-   <!-- HEADER -->
-  <div class="d-flex justify-content-between align-items-start mb-4">
-    <div>
-      <h1 class="fw-bold fs-3 text-dark">Assigned Cases</h1>
-      <p class="text-secondary mb-0">Overview of your active cases.</p>
+<div class="police-dashboard">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <div class="greeting">
+                <h1 class="page-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Assigned Cases
+                </h1>
+                <p class="page-subtitle">Welcome back, {{ auth()->user()->name }}! Here's an overview of your active cases.</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ route('police.cases') }}" class="btn btn-view-all">
+                    <i class="fas fa-list"></i> View All Cases
+                </a>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ $cases->total() }}</h3>
+                    <p>Total Cases</p>
+                </div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ $cases->where('status', 'under_review')->count() }}</h3>
+                    <p>Under Review</p>
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ $cases->where('status', 'resolved')->count() }}</h3>
+                    <p>Resolved</p>
+                </div>
+            </div>
+            
+            <div class="stat-card danger">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ $cases->where('severity', 'High')->count() }}</h3>
+                    <p>High Priority</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-      <a href="{{ route('police.cases') }}" class="btn btn-primary fw-bold px-4 shadow-sm">View All</a>
-
-  </div>
-
-  <!-- ASSIGNED CASES TABLE -->
-  <div class="card shadow-sm border-0 mb-5 rounded-4">
-    <div class="table-responsive">
-      <table class="table align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th>ID</th>
-            <th>Track ID</th>
-            <th>Complaint By</th>
-            <th>Title</th>
-            <th>Incident Type</th>
-            <th>Status</th>
-            <th>Severity</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($cases as $case)
-          <tr >
-            <td>{{ $loop->iteration }}</td>
-            <td>{{ $case->track_id }}</td>
-            <td>{{ $case->user?->name ?? 'N/A' }}</td>
-            <td>{{ $case->subject }}</td>
-            <td>{{ $case->incident_type }}</td>
-            <td>
-              @if($case->status == 'under_review')
-                <span class="badge bg-warning text-dark">Under Review</span>
-              @elseif($case->status == 'received')
-                <span class="badge bg-success">Received</span>
-              @elseif($case->status == 'resolved')
-                <span class="badge bg-secondary">Closed</span>
-              @else
-                <span class="badge bg-info text-dark">{{ $case->status }}</span>
-              @endif
-            </td>
-            <td>
-              @if($case->severity == 'High')
-                <span class="badge bg-danger">High</span>
-              @elseif($case->severity == 'Medium')
-                <span class="badge bg-warning text-dark">Medium</span>
-              @else
-                <span class="badge bg-success">Low</span>
-              @endif
-            </td>
-            <td>{{ $case->created_at->format('Y-m-d') }}</td>
-          <td>
-  <!-- View Details Button -->
-  <a href="#" class="text-primary fw-bold text-decoration-none" 
-     data-bs-toggle="modal" data-bs-target="#viewCaseModal{{ $case->id }}">
-     View Details
-  </a>
-</td>
-
-          </tr>
-          @empty
-          <tr>
-            <td colspan="6" class="text-center text-muted py-4">No cases assigned yet.</td>
-          </tr>
-          @endforelse
-        </tbody>
-      </table>
-
-
-
-      @foreach($cases as $case)
-  <!-- View Details Modal -->
-  <div class="modal fade" id="viewCaseModal{{ $case->id }}" tabindex="-1" aria-labelledby="viewCaseLabel{{ $case->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content rounded-4 shadow-lg">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title fw-bold" id="viewCaseLabel{{ $case->id }}">Case #{{ $case->id }} Details</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row mb-3">
-            <div class="col-md-6 mb-3">
-              <h6 class="text-muted mb-1">Track Id:</h6>
-              <p class="fw-semibold">{{ $case->track_id }}</p>
+    <!-- Cases Table -->
+    <div class="cases-section">
+        <div class="section-header">
+            <h3><i class="fas fa-clipboard-list"></i> Recent Assigned Cases</h3>
+            <div class="section-filters">
+                <span class="filter-badge">{{ $cases->count() }} cases</span>
             </div>
-            <div class="col-md-6 mb-3">
-              <h6 class="text-muted mb-1">Title:</h6>
-              <p class="fw-semibold">{{ $case->subject }}</p>
-            </div>
-            <div class="col-md-6 mb-3">
-              <h6 class="text-muted mb-1">Status:</h6>
-              <p>
-                @if($case->status == 'under_review')
-                  <span class="badge bg-warning text-dark">Under Review</span>
-                @elseif($case->status == 'received')
-                  <span class="badge bg-success">Received</span>
-                @elseif($case->status == 'resolved')
-                  <span class="badge bg-secondary">Closed</span>
-                @else
-                  <span class="badge bg-info text-dark">{{ ucfirst($case->status) }}</span>
-                @endif
-              </p>
-            </div>
-        
-            <div class="col-md-6 mb-3">
-              <h6 class="text-muted mb-1">Severity:</h6>
-              <p>
-                @if($case->severity == 'High')
-                  <span class="badge bg-danger">High</span>
-                @elseif($case->severity == 'Medium')
-                  <span class="badge bg-warning text-dark">Medium</span>
-                @else
-                  <span class="badge bg-success">Low</span>
-                @endif
-              </p>
-            </div>
-            <div class="col-md-6 mb-3">
-              <h6 class="text-muted mb-1">Date Reported:</h6>
-              <p class="fw-semibold">{{ $case->created_at->format('Y-m-d H:i') }}</p>
-            </div>
-         
-
-         
-
-          @if($case->location)
-          <div class="mb-3 col-md-6">
-            <h6 class="text-muted mb-1">Location:</h6>
-            <p class="fw-normal">{{ $case->location }}</p>
-          </div>
-          @endif
-
-          @if($case->note)
-          <div class="mb-3 col-md-6">
-            <h6 class="text-muted mb-1">Police Note:</h6>
-            <p class="fw-normal">{{ $case->note }}</p>
-          </div>
-          @endif
-          @if($case->incident_type)
-          <div class="mb-3 col-md-6">
-            <h6 class="text-muted mb-1">Incident Type:</h6>
-            <p class="fw-normal">{{ $case->incident_type }}</p>
-          </div>
-          @endif
-          @if ($case->description)
-            
-          <div class="mb-3 col-md-6">
-            <h6 class="text-muted mb-1">Description:</h6>
-            <p class="fw-normal">{{ $case->description }}</p>
-          </div>
-          @endif
-          @if ( $case->transcription )
-            
-          <div class="mb-3 col-md-6">
-            <h6 class="text-muted mb-1">Transcription:</h6>
-            <p class="fw-normal">{{ $case->transcription }}</p>
-          </div>
-          @endif
         </div>
         
-      </div>
-
-
-          <!-- Evidence -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3">Attached Evidence</h6>
-                    <div class="row g-3">
-                        @forelse($case->media as $media)
-                            <div class="col-6 col-sm-4 col-md-3">
-                                <a href="{{ asset('storage/'.$media->file_path) }}" target="_blank" class="d-block text-decoration-none text-center">
-                                    <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height:100px;">
-                                       @php
-    $ext = strtolower(pathinfo($media->file_path, PATHINFO_EXTENSION));
-@endphp
-
-@if(in_array($ext, ['jpg','jpeg','png','gif','webp']))
-    {{-- Image preview --}}
-    <img src="{{ asset('storage/'.$media->file_path) }}" alt="Evidence" class="img-fluid h-100 object-fit-contain">
-
-@elseif(in_array($ext, ['mp4','mov','avi','mkv']))
-    {{-- Video icon --}}
-    <i class="bi bi-camera-video fs-2 text-secondary"></i>
-
-@elseif(in_array($ext, ['mp3','wav','aac']))
-    {{-- Audio icon --}}
-    <i class="bi bi-music-note-beamed fs-2 text-secondary"></i>
-
-@elseif(in_array($ext, ['zip','rar']))
-    {{-- Archive icon --}}
-    <i class="bi bi-file-zip fs-2 text-secondary"></i>
-
-@elseif(in_array($ext, ['pdf']))
-    {{-- PDF icon --}}
-    <i class="bi bi-filetype-pdf fs-2 text-danger"></i>
-
-@elseif(in_array($ext, ['doc','docx']))
-    {{-- Word icon --}}
-    <i class="bi bi-filetype-docx fs-2 text-primary"></i>
-
-@elseif(in_array($ext, ['xls','xlsx']))
-    {{-- Excel icon --}}
-    <i class="bi bi-filetype-xlsx fs-2 text-success"></i>
-
-@elseif(in_array($ext, ['txt']))
-    {{-- Text icon --}}
-    <i class="bi bi-file-text fs-2 text-secondary"></i>
-
-@else
-    {{-- Fallback icon for unknown file types --}}
-    <i class="bi bi-file-earmark fs-2 text-secondary"></i>
-@endif
-
-</div>
-<small class="d-block mt-2 text-truncate">{{ basename($media->file_path) }}</small>
-</a>
-</div>
-
+        <div class="cases-card">
+            <div class="table-container">
+                <table class="cases-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tracking ID</th>
+                            <th>Complainant</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Severity</th>
+                            <th>Date</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($cases as $case)
+                        <tr class="case-row" data-id="{{ $case->id }}">
+                            <td class="case-id">{{ $loop->iteration }}</td>
+                            <td class="tracking-id">
+                                <span >{{ $case->track_id }}</span>
+                            </td>
+                            <td class="complainant">
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        {{ strtoupper(substr($case->user?->name ?? 'U', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ $case->user?->name ?? 'N/A' }}</strong>
+                                        <small>{{ $case->user?->email ?? '' }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="case-title">
+                                <strong>{{ $case->subject }}</strong>
+                                <small class="text-muted">{{ Str::limit($case->description, 30) }}</small>
+                            </td>
+                            <td class="case-type">
+                                <span class="type-badge">{{ $case->incident_type }}</span>
+                            </td>
+                            <td class="status">
+                                @switch($case->status)
+                                    @case('under_review')
+                                        <span class="status-badge status-review">
+                                            <i class="fas fa-search"></i> Under Review
+                                        </span>
+                                        @break
+                                    @case('received')
+                                        <span class="status-badge status-received">
+                                            <i class="fas fa-inbox"></i> Received
+                                        </span>
+                                        @break
+                                    @case('resolved')
+                                        <span class="status-badge status-resolved">
+                                            <i class="fas fa-check-circle"></i> Resolved
+                                        </span>
+                                        @break
+                                    @default
+                                        <span class="status-badge status-pending">
+                                            <i class="fas fa-clock"></i> {{ ucfirst($case->status) }}
+                                        </span>
+                                @endswitch
+                            </td>
+                            <td class="severity">
+                                @switch($case->severity)
+                                    @case('High')
+                                        <span class="severity-badge severity-high">
+                                            <i class="fas fa-exclamation-circle"></i> High
+                                        </span>
+                                        @break
+                                    @case('Medium')
+                                        <span class="severity-badge severity-medium">
+                                            <i class="fas fa-exclamation-triangle"></i> Medium
+                                        </span>
+                                        @break
+                                    @default
+                                        <span class="severity-badge severity-low">
+                                            <i class="fas fa-check-circle"></i> Low
+                                        </span>
+                                @endswitch
+                            </td>
+                            <td class="date">
+                                <div class="date-badge">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ $case->created_at->format('M y') }}
+                                </div>
+                            </td>
+                            <td class="actions">
+                                <div class="action-buttons">
+                                    <button class="action-btn primary view-details" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#viewCaseModal{{ $case->id }}">
+                                        <i class="fas fa-eye"></i>
+                                        <span>View</span>
+                                    </button>
+                                    <button class="action-btn secondary edit-case" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editCaseModal{{ $case->id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <p class="text-muted">No evidence attached.</p>
-                            
+                        <tr>
+                            <td colspan="9">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox fa-3x"></i>
+                                    <h4>No cases assigned yet</h4>
+                                    <p>You'll see assigned cases here when they become available</p>
+                                </div>
+                            </td>
+                        </tr>
                         @endforelse
-                           {{-- 🔹 Show audio file (if stored separately in column) --}}
-      @if(!empty($case->audio_file))
-        <div class="col-12 mt-3">
-          <h6 class="fw-bold mb-2">Audio Evidence:</h6>
-          <audio controls class="w-100">
-            <source src="{{ asset('storage/'.$case->audio_file) }}" type="audio/{{ pathinfo($case->audio_file, PATHINFO_EXTENSION) }}">
-            Your browser does not support the audio element.
-          </audio>
-          <small class="text-muted d-block mt-1">{{ basename($case->audio_file) }}</small>
+                    </tbody>
+                </table>
+            </div>
+            
+            @if($cases->hasPages())
+            <div class="pagination-section">
+                <div class="pagination-info">
+                    Showing {{ $cases->firstItem() }} to {{ $cases->lastItem() }} of {{ $cases->total() }} entries
+                </div>
+                <div class="pagination-links">
+                    {{ $cases->links() }}
+                </div>
+            </div>
+            @endif
         </div>
-      @endif
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4><i class="fas fa-chart-bar"></i> Cases by Type</h4>
+                        <div class="chart-legend">
+                            <span class="legend-item"></span> Current Month
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="casesByTypeChart"></canvas>
                     </div>
                 </div>
             </div>
-        
-
-       <div class="modal-footer">
-  <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-  
-  <!-- Edit Button -->
-  <button class="btn btn-primary" data-bs-toggle="modal" 
-          data-bs-target="#editCaseModal{{ $case->id }}" 
-          data-bs-dismiss="modal">
-    Edit Case
-  </button>
-
-  <!-- ✅ Forward to Forensic Analyst -->
-  {{-- <form action="" method="POST" class="d-inline">
-    @csrf
-    <button type="submit" class="btn btn-success">
-      <i class="bi bi-send"></i> Forward to Forensic Analyst
-    </button>
-  </form> --}}
-
-    {{-- @php
-        $status = $case->latestStatus?->status ?? 'recieved';
-      @endphp
-    @if($status === 'recieved')
-      <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#forwardModal" data-id="{{ $case->id }}">
-        
-  
-      <i class="bi bi-send"></i> Forward to Forensic Analyst
-    
-      </button>
-      @else
-      <button class="btn btn-sm btn-outline-secondary" disabled>
-        <span class="material-icons fs-6">check_circle</span> Sent
-      </button>
-      @endif --}}
-
-      <!-- Forward Modal -->
-{{-- <div class="modal fade" id="forwardModal" tabindex="-1" aria-labelledby="forwardModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="forwardModalLabel"><span class="material-icons align-middle">send</span> Forward Case</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="forwardForm" method="POST" action="{{ route('police.forward.cases') }}">
-          @csrf
-          <input type="hidden" name="case_id" id="case_id">
-
-          <div class="mb-3">
-            <label class="form-label">Select Forensic Analyst</label>
-            <select class="form-select" name="analyst_id" required>
-              <option value="">Select Forensic Analyst</option>
-              @foreach ($analysts as $analyst)
-              <option value="{{ $analyst->id }}">{{ $analyst->name }}</option>
-              @endforeach
-            </select>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Add Remarks / Instructions</label>
-            <textarea class="form-control" name="remarks" rows="3" placeholder="Describe what to analyze..." required></textarea>
-          </div>
-
-          <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-success">
-              <span class="material-icons">check_circle</span> Confirm Forward
-            </button>
-          </div>
-        </form>
-      </div>
+            
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4><i class="fas fa-chart-pie"></i> Case Status</h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="caseStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div> --}}
 </div>
 
-      </div>
-    </div>
-  </div>
-
-  <!-- Edit Case Modal -->
-  <div class="modal fade" id="editCaseModal{{ $case->id }}" tabindex="-1" aria-labelledby="editCaseLabel{{ $case->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content rounded-4 shadow-lg">
-        <div class="modal-header bg-dark text-white">
-          <h5 class="modal-title fw-bold" id="editCaseLabel{{ $case->id }}">Edit Case #{{ $case->id }}</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!-- Modals -->
+@foreach($cases as $case)
+<!-- View Case Modal -->
+<div class="modal fade" id="viewCaseModal{{ $case->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-alt"></i> Case #{{ $case->id }} Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="case-details">
+                    <!-- Basic Info -->
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label><i class="fas fa-hashtag"></i> Tracking ID</label>
+                            <span class="detail-value">{{ $case->track_id }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fas fa-heading"></i> Title</label>
+                            <span class="detail-value">{{ $case->subject }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fas fa-tag"></i> Status</label>
+                            <span class="detail-value">
+                                @if($case->status == 'under_review')
+                                    <span class="badge bg-warning">Under Review</span>
+                                @elseif($case->status == 'received')
+                                    <span class="badge bg-success">Received</span>
+                                @elseif($case->status == 'resolved')
+                                    <span class="badge bg-secondary">Closed</span>
+                                @else
+                                    <span class="badge bg-info">{{ ucfirst($case->status) }}</span>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fas fa-exclamation"></i> Severity</label>
+                            <span class="detail-value">
+                                @if($case->severity == 'High')
+                                    <span class="badge bg-danger">High</span>
+                                @elseif($case->severity == 'Medium')
+                                    <span class="badge bg-warning">Medium</span>
+                                @else
+                                    <span class="badge bg-success">Low</span>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fas fa-calendar"></i> Date Reported</label>
+                            <span class="detail-value">{{ $case->created_at->format('Y-m-d H:i') }}</span>
+                        </div>
+                        @if($case->location)
+                        <div class="detail-item">
+                            <label><i class="fas fa-map-marker-alt"></i> Location</label>
+                            <span class="detail-value">{{ $case->location }}</span>
+                        </div>
+                        @endif
+                        @if($case->note)
+                        <div class="detail-item">
+                            <label><i class="fas fa-sticky-note"></i> Police Note</label>
+                            <span class="detail-value">{{ $case->note }}</span>
+                        </div>
+                        @endif
+                        @if($case->incident_type)
+                        <div class="detail-item">
+                            <label><i class="fas fa-bullhorn"></i> Incident Type</label>
+                            <span class="detail-value">{{ $case->incident_type }}</span>
+                        </div>
+                        @endif
+                        @if($case->description)
+                        <div class="detail-item full-width">
+                            <label><i class="fas fa-align-left"></i> Description</label>
+                            <span class="detail-value">{{ $case->description }}</span>
+                        </div>
+                        @endif
+                        @if($case->transcription)
+                        <div class="detail-item full-width">
+                            <label><i class="fas fa-microphone-alt"></i> Transcription</label>
+                            <span class="detail-value">{{ $case->transcription }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Evidence Section -->
+                    <div class="evidence-section">
+                        <h6><i class="fas fa-folder-open"></i> Attached Evidence</h6>
+                        <div class="media-grid">
+                            @forelse($case->media as $media)
+                            <div class="media-item">
+                                <a href="{{ asset('storage/'.$media->file_path) }}" target="_blank" class="media-link">
+                                    @php
+                                        $ext = strtolower(pathinfo($media->file_path, PATHINFO_EXTENSION));
+                                    @endphp
+                                    @if(in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                        <img src="{{ asset('storage/'.$media->file_path) }}" 
+                                             alt="Evidence" 
+                                             class="media-preview">
+                                    @elseif(in_array($ext, ['mp4','mov','avi','mkv']))
+                                        <div class="media-icon">
+                                            <i class="fas fa-video"></i>
+                                            <span>Video</span>
+                                        </div>
+                                    @elseif(in_array($ext, ['mp3','wav','aac']))
+                                        <div class="media-icon">
+                                            <i class="fas fa-music"></i>
+                                            <span>Audio</span>
+                                        </div>
+                                    @elseif($ext == 'pdf')
+                                        <div class="media-icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span>PDF</span>
+                                        </div>
+                                    @elseif(in_array($ext, ['doc','docx']))
+                                        <div class="media-icon">
+                                            <i class="fas fa-file-word"></i>
+                                            <span>Document</span>
+                                        </div>
+                                    @else
+                                        <div class="media-icon">
+                                            <i class="fas fa-file"></i>
+                                            <span>File</span>
+                                        </div>
+                                    @endif
+                                    <small class="media-name">{{ basename($media->file_path) }}</small>
+                                </a>
+                            </div>
+                            @empty
+                            <div class="empty-media">
+                                <i class="fas fa-folder-open"></i>
+                                <p>No evidence attached</p>
+                            </div>
+                            @endforelse
+                            
+                            <!-- Audio File -->
+                            @if(!empty($case->audio_file))
+                            <div class="media-item">
+                                <a href="{{ asset('storage/'.$case->audio_file) }}" target="_blank" class="media-link">
+                                    <div class="media-icon">
+                                        <i class="fas fa-microphone-alt"></i>
+                                        <span>Audio</span>
+                                    </div>
+                                    <small class="media-name">{{ basename($case->audio_file) }}</small>
+                                    <div class="audio-player">
+                                        <audio controls>
+                                            <source src="{{ asset('storage/'.$case->audio_file) }}" 
+                                                    type="audio/{{ pathinfo($case->audio_file, PATHINFO_EXTENSION) }}">
+                                        </audio>
+                                    </div>
+                                </a>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#editCaseModal{{ $case->id }}"
+                        data-bs-dismiss="modal">
+                    <i class="fas fa-edit"></i> Edit Case
+                </button>
+            </div>
         </div>
-        <form action="{{ route('police.cases.update', $case->id) }}" method="POST">
-          @csrf
-          @method('PUT')
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Status</label>
-              <select name="status" class="form-select">
-                <option value="received" {{ $case->status == 'received' ? 'selected' : '' }}>Received</option>
-                <option value="under_review" {{ $case->status == 'under_review' ? 'selected' : '' }}>Under Review</option>
-                <option value="resolved" {{ $case->status == 'resolved' ? 'selected' : '' }}>Resolved</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Police Note / Update</label>
-              <textarea name="note" class="form-control" rows="4">{{ $case->note }}</textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-success">Save Changes</button>
-          </div>
-        </form>
-      </div>
     </div>
-  </div>
+</div>
+
+<!-- Edit Case Modal -->
+<div class="modal fade" id="editCaseModal{{ $case->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit"></i> Edit Case #{{ $case->id }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('police.cases.update', $case->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" class="form-select">
+                            <option value="received" {{ $case->status == 'received' ? 'selected' : '' }}>Received</option>
+                            <option value="under_review" {{ $case->status == 'under_review' ? 'selected' : '' }}>Under Review</option>
+                            <option value="resolved" {{ $case->status == 'resolved' ? 'selected' : '' }}>Resolved</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Police Note / Update</label>
+                        <textarea name="note" class="form-control" rows="4" 
+                                  placeholder="Add case notes or updates...">{{ $case->note }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endforeach
 
-    </div>
-
-      
-      <div class="card-footer border-0 bg-white d-flex justify-content-center">
-        {{ $cases->links('pagination::bootstrap-5') }}
-      </div>
-   
-  </div>
 
 
-  <!-- NEW COMPLAINTS -->
-  {{-- <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h2 class="fw-bold fs-4 mb-1">New Complaints</h2>
-      <p class="text-secondary small mb-0">Review and take action on complaints from the public.</p>
-    </div>
-  </div>
-
-  <div class="row g-4 mb-5 pb-5">
-    <div class="col-md-6 col-lg-4">
-      <div class="card p-3 shadow-sm border-0 rounded-4">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="fw-bold mb-0">Complaint #C-5678</h6>
-            <small class="text-secondary">Noise Complaint at Elm Street</small>
-          </div>
-          <small class="text-secondary">2024-05-21</small>
-        </div>
-        <p class="mt-3 small text-muted">Loud music reported from apartment 3B. Multiple reports received.</p>
-        <div class="d-flex gap-2 mt-3">
-          <button class="btn btn-success btn-sm flex-fill fw-bold shadow-sm">Accept</button>
-          <button class="btn btn-danger btn-sm flex-fill fw-bold shadow-sm">Reject</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-6 col-lg-4">
-      <div class="card p-3 shadow-sm border-0 rounded-4">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="fw-bold mb-0">Complaint #C-5679</h6>
-            <small class="text-secondary">Illegal Parking</small>
-          </div>
-          <small class="text-secondary">2024-05-21</small>
-        </div>
-        <p class="mt-3 small text-muted">A blue sedan is blocking a fire hydrant on Oak Avenue.</p>
-        <div class="d-flex gap-2 mt-3">
-          <button class="btn btn-success btn-sm flex-fill fw-bold shadow-sm">Accept</button>
-          <button class="btn btn-danger btn-sm flex-fill fw-bold shadow-sm">Reject</button>
-        </div>
-      </div>
-    </div>
-  </div> --}}
-
-  <!-- CHARTS SECTION -->
-  <div class="row g-4">
-    <!-- BAR CHART -->
-    <div class="col-lg-8">
-      <div class="card shadow-sm border-0 rounded-4 p-4">
-        <h5 class="fw-bold mb-3">Cases by Type</h5>
-        <canvas id="casesByTypeChart" height="120"></canvas>
-      </div>
-    </div>
-
-    <!-- DOUGHNUT CHART -->
-    <div class="col-lg-4">
-      <div class="card shadow-sm border-0 rounded-4 p-4">
-        <h5 class="fw-bold mb-3">Case Status</h5>
-        <canvas id="caseStatusChart" height="200"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
-@endsection
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // ==== Dynamic Data from Controller ====
+    const chartData = @json($chartData);
 
-  // ==== Dynamic Data from Controller ====
-  const chartData = @json($chartData);
+    // === BAR CHART (Cases by Type) ===
+    const ctx1 = document.getElementById('casesByTypeChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: chartData.types.labels,
+            datasets: [{
+                label: 'Cases',
+                data: chartData.types.data,
+                backgroundColor: [
+                    '#667eea', '#764ba2', '#f472b6', '#f59e0b', 
+                    '#10b981', '#3b82f6', '#8b5cf6'
+                ],
+                borderRadius: 8,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 14
+                    },
+                    padding: 12
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-  // === BAR CHART (Cases by Type) ===
-  const ctx1 = document.getElementById('casesByTypeChart');
-  new Chart(ctx1, {
-    type: 'bar',
-    data: {
-      labels: chartData.types.labels,
-      datasets: [{
-        label: 'Cases',
-        data: chartData.types.data,
-        backgroundColor: ['#007bff','#6610f2','#6f42c1','#e83e8c','#fd7e14','#20c997'],
-        borderRadius: 10
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true },
-        x: { grid: { display: false } }
-      }
-    }
-  });
+    // === DOUGHNUT CHART (Case Status) ===
+    const ctx2 = document.getElementById('caseStatusChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: chartData.status.labels,
+            datasets: [{
+                data: chartData.status.data,
+                backgroundColor: [
+                    '#f59e0b', // Under Review
+                    '#10b981', // Received
+                    '#94a3b8', // Resolved
+                    '#ef4444', // Other
+                    '#3b82f6'  // Pending
+                ],
+                hoverOffset: 15,
+                borderWidth: 3,
+                borderColor: 'white'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 12
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            let value = context.raw || 0;
+                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            let percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-  // === DOUGHNUT CHART (Case Status) ===
-  const ctx2 = document.getElementById('caseStatusChart');
-  new Chart(ctx2, {
-    type: 'doughnut',
-    data: {
-      labels: chartData.status.labels,
-      datasets: [{
-        data: chartData.status.data,
-        backgroundColor: ['#ffc107','#0dcaf0','#198754','#6c757d','#dc3545'],
-        hoverOffset: 4,
-        borderWidth: 2,
-        borderColor: '#fff'
-      }]
-    },
-    options: {
-      cutout: '70%',
-      plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 15, color: '#333' } }
-      }
-    }
-  });
+    // Row hover effects
+    const caseRows = document.querySelectorAll('.case-row');
+    caseRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+    });
 
+    // Auto-refresh stats every 30 seconds (optional)
+    setInterval(() => {
+        // You can implement live updates here if needed
+        console.log('Auto-refreshing dashboard...');
+    }, 30000);
 });
 </script>
+@endsection

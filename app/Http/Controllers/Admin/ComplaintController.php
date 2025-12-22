@@ -72,7 +72,7 @@ class ComplaintController extends Controller
             $query->latest();
         }
 
-        $complaints = $query->paginate(12);
+        $complaints = $query->paginate(10);
         $officers = User::where('role_id', 2)->get();
 
         // ✅ **NEW: Dashboard access notification (first time today)**

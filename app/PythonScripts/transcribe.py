@@ -1,192 +1,260 @@
-# D:\web development\laravel\FYP\app\PythonScripts\transcribe_final.py
+# #!/usr/bin/env python3
+# """
+# transcribe.py (Optimized v2)
+# Usage:
+#     python transcribe.py <audio_path> <lang> [--json] [--no-roman]
 
+# Output (default):
+#     <urdu_text>||<roman_text>||<confidence>
+
+# If --json provided:
+#     {"urdu_text": "...", "roman_text": "...", "confidence": 0.83, "raw": "..."}
+# """
+
+# import os
+# import sys
+# import argparse
+# import json
+# import math
+# import traceback
+
+# # ---- Windows / CPU safety ----
+# # Force CPU usage (hide CUDA devices) and reduce thread usage to avoid Windows async issues.
+# os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")   # force CPU
+# os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
+
+# try:
+#     # import torch carefully and set thread limits early
+#     import torch
+#     torch.set_num_threads(1)
+#     torch.set_num_interop_threads(1)
+# except Exception:
+#     # We'll give a nicer error later if import fails
+#     torch = None
+
+# # import whisper after setting environment and torch threads
+# try:
+#     import whisper
+# except Exception as e:
+#     # Print helpful debug for Laravel to capture and display
+#     print(json.dumps({
+#         "error": "whisper_import_failed",
+#         "message": str(e),
+#         "traceback": traceback.format_exc()
+#     }))
+#     sys.exit(1)
+
+# # Romanizer: try transformers transliteration model; otherwise fallback to unidecode.
+# try:
+#     from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+#     TRANSFORMERS_OK = True
+# except Exception:
+#     TRANSFORMERS_OK = False
+
+# try:
+#     from unidecode import unidecode
+# except Exception:
+#     # very small fallback if not installed
+#     def unidecode(s):
+#         return ''.join(ch if ord(ch) < 128 else '?' for ch in s)
+
+# # ---------- Helper functions ----------
+# _transformer_model = None
+# _transformer_tokenizer = None
+# _whisper_model = None
+
+# def load_whisper_model(size="small", device=None):
+#     global _whisper_model
+#     if _whisper_model is None:
+#         # whisper uses torch; let it pick CPU from env
+#         _whisper_model = whisper.load_model(size)
+#     return _whisper_model
+
+# def load_transformer_model(model_name="ai4bharat/IndicTrans2-en-ur"):
+#     global _transformer_model, _transformer_tokenizer
+#     if not TRANSFORMERS_OK:
+#         return None, None
+#     global _transformer_model, _transformer_tokenizer
+#     if _transformer_model is None or _transformer_tokenizer is None:
+#         try:
+#             _transformer_tokenizer = AutoTokenizer.from_pretrained(model_name)
+#             _transformer_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+#         except Exception:
+#             _transformer_model = None
+#             _transformer_tokenizer = None
+#     return _transformer_model, _transformer_tokenizer
+
+# def romanize_text(urdu_text):
+#     """
+#     Try transformers transliteration model first.
+#     If that fails, fallback to unidecode (ASCII approximation).
+#     """
+#     if not urdu_text:
+#         return ""
+#     # prefer transformer if available
+#     if TRANSFORMERS_OK:
+#         try:
+#             model, tokenizer = load_transformer_model()
+#             if model and tokenizer:
+#                 inputs = tokenizer(urdu_text, return_tensors="pt", truncation=True)
+#                 # generate with limited length
+#                 out = model.generate(**inputs, max_new_tokens=200)
+#                 cand = tokenizer.decode(out[0], skip_special_tokens=True)
+#                 if cand and len(cand.strip()) > 0:
+#                     return cand.strip()
+#         except Exception:
+#             # fall through to unidecode fallback
+#             pass
+
+#     # fallback: ASCII approximation
+#     try:
+#         approx = unidecode(urdu_text)
+#         return approx
+#     except Exception:
+#         return ""
+
+# def compute_confidence(result):
+#     """
+#     Compute a confidence score from whisper result.
+#     We'll use mean(avg_logprob) across segments if available and convert to a 0..1-ish scale.
+#     If avg_logprob is in log-prob space, it can be negative; we'll approximate:
+#         conf = sigmoid(mean_avg_logprob)
+#     Keep final value between 0.0 and 1.0 and round to 2 decimals.
+#     """
+#     try:
+#         segments = result.get("segments", [])
+#         if not segments:
+#             return 0.50
+#         vals = []
+#         for seg in segments:
+#             if "avg_logprob" in seg and seg["avg_logprob"] is not None:
+#                 vals.append(float(seg["avg_logprob"]))
+#         if not vals:
+#             return 0.50
+#         mean_lp = sum(vals) / len(vals)
+#         # numerical stable sigmoid
+#         try:
+#             conf = 1.0 / (1.0 + math.exp(-mean_lp))
+#         except OverflowError:
+#             conf = 0.0 if mean_lp < 0 else 1.0
+#         # clamp
+#         conf = max(0.0, min(1.0, conf))
+#         return round(conf, 2)
+#     except Exception:
+#         return 0.50
+
+# # ---------- Main ----------
+# def main():
+#     parser = argparse.ArgumentParser(description="Transcribe audio -> Urdu||Roman||Confidence")
+#     parser.add_argument("audio", help="Path to audio file (wav/mp3/ogg/m4a)")
+#     parser.add_argument("lang", help="Language code (ur/en/hi)", nargs='?', default='ur')
+#     parser.add_argument("--model", help="Whisper model size (tiny|base|small|medium|large)", default="small")
+#     parser.add_argument("--json", help="Output JSON instead of pipe format", action="store_true")
+#     parser.add_argument("--no-roman", help="Do not attempt romanization", action="store_true")
+#     args = parser.parse_args()
+
+#     audio = args.audio
+#     lang = args.lang
+#     model_size = args.model
+
+#     if not os.path.exists(audio):
+#         out = {
+#             "success": False,
+#             "error": "file_not_found",
+#             "message": f"Audio file not found: {audio}"
+#         }
+#         if args.json:
+#             print(json.dumps(out))
+#         else:
+#             print(json.dumps(out))  # JSON fallback so Laravel can parse it
+#         sys.exit(1)
+
+#     try:
+#         # load model (cached)
+#         wmodel = load_whisper_model(size=model_size)
+
+#         # transcribe
+#         # use task=transcribe and language hint
+#         result = wmodel.transcribe(audio, language=lang)
+
+#         urdu_text = result.get("text", "").strip()
+#         confidence = compute_confidence(result)
+
+#         roman_text = ""
+#         if not args.no_roman:
+#             try:
+#                 roman_text = romanize_text(urdu_text)
+#             except Exception:
+#                 roman_text = ""
+
+#         raw = f"{urdu_text}||{roman_text}||{confidence}"
+
+#         if args.json:
+#             print(json.dumps({
+#                 "success": True,
+#                 "urdu_text": urdu_text,
+#                 "roman_text": roman_text,
+#                 "confidence": confidence,
+#                 "raw": raw
+#             }, ensure_ascii=False))
+#         else:
+#             # IMPORTANT: print EXACT required format for Laravel
+#             print(f"{urdu_text}||{roman_text}||{confidence}")
+
+#     except Exception as e:
+#         tb = traceback.format_exc()
+#         out = {
+#             "success": False,
+#             "error": "transcription_error",
+#             "message": str(e),
+#             "traceback": tb
+#         }
+#         # keep Urdu + Roman fields friendly for Laravel display
+#         urdu_err = "خرابی: " + str(e)
+#         roman_err = "Error: " + str(e)
+#         if args.json:
+#             out.update({"urdu_text": urdu_err, "roman_text": roman_err, "confidence": 0.0})
+#             print(json.dumps(out, ensure_ascii=False))
+#         else:
+#             # Print JSON so Laravel can detect the failure easily
+#             print(json.dumps({
+#                 "success": False,
+#                 "error": str(e),
+#                 "urdu_text": urdu_err,
+#                 "roman_text": roman_err,
+#                 "confidence": 0.0,
+#                 "traceback": tb[:4000]  # truncate large traces
+#             }, ensure_ascii=False))
+#         sys.exit(1)
+
+# if __name__ == "__main__":
+#     main()
+
+
+import google.generativeai as genai
 import sys
 import os
 
-# ============================================
-# WINDOWS FIX - Use raw strings for Windows paths
-# ============================================
-if sys.platform == 'win32':
-    # Disable asyncio imports
-    import builtins
-    original_import = builtins.__import__
-    
-    def custom_import(name, *args, **kwargs):
-        if name == 'asyncio' or name.startswith('asyncio.'):
-            # Return a dummy module
-            class DummyModule:
-                def __getattr__(self, name):
-                    return DummyModule()
-                def __call__(self, *args, **kwargs):
-                    return None
-            return DummyModule()
-        return original_import(name, *args, **kwargs)
-    
-    builtins.__import__ = custom_import
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Environment variables
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-os.environ["NO_PROXY"] = "*"
-os.environ["HTTP_PROXY"] = ""
-os.environ["HTTPS_PROXY"] = ""
+audio_path = sys.argv[1]
 
-def main():
-    try:
-        # Set UTF-8 encoding
-        if hasattr(sys.stdout, 'reconfigure'):
-            sys.stdout.reconfigure(encoding='utf-8')
-            sys.stderr.reconfigure(encoding='utf-8')
-        
-        print("=== TRANSCRIPTION SCRIPT STARTED ===", file=sys.stderr)
-        
-        if len(sys.argv) < 2:
-            print("ERROR: Audio path required", file=sys.stderr)
-            sys.exit(1)
-        
-        audio_path = sys.argv[1]
-        language = sys.argv[2] if len(sys.argv) > 2 else "ur"
-        
-        print(f"DEBUG: Audio path: {audio_path}", file=sys.stderr)
-        print(f"DEBUG: Language: {language}", file=sys.stderr)
-        print(f"DEBUG: File exists: {os.path.exists(audio_path)}", file=sys.stderr)
-        
-        if not os.path.exists(audio_path):
-            print("ERROR: File does not exist", file=sys.stderr)
-            print("فائل نہیں ملی۔||File nahi mili.||0.1")
-            return
-        
-        # Try to import whisper
-        try:
-            print("DEBUG: Importing whisper...", file=sys.stderr)
-            import whisper
-            print("DEBUG: Whisper imported successfully", file=sys.stderr)
-        except ImportError as e:
-            print(f"ERROR: Cannot import whisper: {e}", file=sys.stderr)
-            print("وہسپر ماڈل نہیں ملا۔||Whisper model nahi mila.||0.2")
-            return
-        
-        # Define model paths with raw strings (r'') for Windows
-        model_paths = [
-            r'C:\Users\PMLS\.cache\whisper\tiny.pt',  # Primary
-            r'D:\.cache\whisper\tiny.pt',             # Alternative
-            os.path.join(os.path.expanduser('~'), '.cache', 'whisper', 'tiny.pt')  # Default
-        ]
-        
-        # Check which model exists
-        model_to_use = None
-        for model_path in model_paths:
-            if os.path.exists(model_path):
-                model_to_use = model_path
-                print(f"DEBUG: Found model at: {model_path}", file=sys.stderr)
-                break
-        
-        if not model_to_use:
-            print("DEBUG: No local model found, trying to download...", file=sys.stderr)
-            model_to_use = 'tiny'  # Will try to download
-        
-        # Load model
-        try:
-            print(f"DEBUG: Loading model: {model_to_use}", file=sys.stderr)
-            
-            if isinstance(model_to_use, str) and model_to_use.endswith('.pt'):
-                # Load from local file
-                import torch
-                from whisper import load_model
-                
-                # Load base model
-                model = load_model('tiny')
-                # Load weights from local file
-                model_state = torch.load(model_to_use, map_location='cpu')
-                model.load_state_dict(model_state)
-                print("DEBUG: Model loaded from local file", file=sys.stderr)
-            else:
-                # Try to download (may fail without internet)
-                model = whisper.load_model(model_to_use)
-                print(f"DEBUG: Model '{model_to_use}' loaded", file=sys.stderr)
-                
-        except Exception as e:
-            print(f"ERROR: Model load failed: {e}", file=sys.stderr)
-            print("ماڈل لوڈ نہیں ہو سکا۔||Model load nahi ho saka.||0.3")
-            return
-        
-        # Transcribe
-        try:
-            print("DEBUG: Starting transcription...", file=sys.stderr)
-            result = model.transcribe(
-                audio_path,
-                language=language,
-                task="transcribe",
-                fp16=False,
-                verbose=False
-            )
-            print("DEBUG: Transcription completed", file=sys.stderr)
-            
-            text = result.get('text', '').strip()
-            print(f"DEBUG: Extracted text length: {len(text)}", file=sys.stderr)
-            
-            if text:
-                print(f"DEBUG: First 100 chars: {text[:100]}", file=sys.stderr)
-            else:
-                print("DEBUG: No text found", file=sys.stderr)
-                
-        except Exception as e:
-            print(f"ERROR: Transcription failed: {e}", file=sys.stderr)
-            print("ٹرانککرپشن ناکام۔||Transcription nakam.||0.4")
-            return
-        
-        # Prepare output
-        if not text:
-            text = "آڈیو میں کوئی واضح آواز نہیں ملی۔"
-        
-        # Simple roman conversion
-        roman_text = convert_to_roman(text)
-        
-        # Confidence
-        confidence = 0.8
-        if result and 'segments' in result and result['segments']:
-            try:
-                confidences = [s.get('confidence', 0.5) for s in result['segments']]
-                confidence = sum(confidences) / len(confidences)
-            except:
-                confidence = 0.8
-        
-        # Output
-        output = f"{text}||{roman_text}||{confidence:.2f}"
-        print(f"DEBUG: Final output prepared", file=sys.stderr)
-        print("=== TRANSCRIPTION COMPLETED SUCCESSFULLY ===", file=sys.stderr)
-        print(output)
-        
-    except Exception as e:
-        print(f"CRITICAL: Unexpected error: {e}", file=sys.stderr)
-        import traceback
-        traceback.print_exc(file=sys.stderr)
-        print("سسٹم میں غیر متوقع خرابی۔||System mein ghair mutawaqqa kharabi.||0.1")
+model = genai.GenerativeModel("gemini-1.5-pro")
 
-def convert_to_roman(text):
-    """Simple Urdu to Roman conversion"""
-    if not text:
-        return ""
-    
-    # Basic mapping
-    mapping = {
-        'ا': 'a', 'آ': 'aa', 'ب': 'b', 'پ': 'p', 'ت': 't',
-        'ٹ': 'tt', 'ث': 's', 'ج': 'j', 'چ': 'ch', 'ح': 'h',
-        'خ': 'kh', 'د': 'd', 'ڈ': 'dd', 'ذ': 'z', 'ر': 'r',
-        'ڑ': 'rr', 'ز': 'z', 'ژ': 'zh', 'س': 's', 'ش': 'sh',
-        'ص': 's', 'ض': 'z', 'ط': 't', 'ظ': 'z', 'ع': 'a',
-        'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ک': 'k', 'گ': 'g',
-        'ل': 'l', 'م': 'm', 'ن': 'n', 'و': 'w', 'ہ': 'h',
-        'ھ': 'h', 'ی': 'y', 'ے': 'e', 'ں': 'n',
-        ' ': ' ', '.': '.', ',': ',', '؟': '?', '۔': '.',
-        '!': '!', ':': ':', '؛': ';', '(': '(', ')': ')',
-        '\n': ' ', '\r': ' ', '\t': ' '
+with open(audio_path, "rb") as f:
+    audio_bytes = f.read()
+
+prompt = """
+You are a forensic transcription assistant.
+Convert the following audio into accurate text transcription.
+"""
+
+response = model.generate_content([
+    prompt,
+    {
+        "mime_type": "audio/mpeg",
+        "data": audio_bytes
     }
-    
-    result = []
-    for char in text:
-        result.append(mapping.get(char, char))
-    
-    return ''.join(result)
+])
 
-if __name__ == "__main__":
-    main()
+print(response.text)

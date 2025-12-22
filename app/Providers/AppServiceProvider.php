@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\WhisperApiService;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
@@ -16,8 +17,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+          $this->app->singleton(WhisperApiService::class, function ($app) {
+        return new WhisperApiService();
+    });
         $this->app->register(\App\Providers\NotificationServiceProvider::class);
     }
+
 
     /**
      * Bootstrap any application services.
@@ -35,4 +40,8 @@ class AppServiceProvider extends ServiceProvider
 });
 
     }
+
+    // app/Providers/AppServiceProvider.php میں
+
+
 }

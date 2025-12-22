@@ -120,7 +120,7 @@
                                 <!-- Audio visualization will appear here -->
                             </div>
                             
-                            <div class="mt-3">
+                            {{-- <div class="mt-3">
                                 <label class="form-label">Or upload audio file:</label>
                                 <input type="file" class="form-control" id="voiceFile" name="voice_complaint" accept="audio/*">
                                 <small class="text-muted">Supported formats: MP3, WAV, M4A, OGG (Max 5MB)</small>
@@ -133,10 +133,10 @@
                                 <button type="button" class="btn btn-warning" id="clearRecording">
                                     <i class="fas fa-trash me-2"></i>Clear
                                 </button>
-                            </div>
+                            </div> --}}
                         </div>
                         
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <div id="transcriptionContainer" class="d-none">
                                 <h6 class="mb-2">Transcription Preview:</h6>
                                 <div class="transcription-preview" id="transcriptionPreview">
@@ -158,7 +158,7 @@
                                     </label>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                     
                     <input type="hidden" name="audio_data" id="audioData">

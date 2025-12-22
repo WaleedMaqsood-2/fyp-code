@@ -22,10 +22,10 @@
             </a>
 
             <!-- Face Matching -->
-            <a href="{{ route('forensic.face.match') }}" class="nav-link {{ request()->routeIs('forensic.face.match') ? 'active' : '' }}">
+            {{-- <a href="{{ route('forensic.face.match') }}" class="nav-link {{ request()->routeIs('forensic.face.match') ? 'active' : '' }}">
                 <i class="bi bi-person-lines-fill"></i>
                 <span class="sidebar-text">Face Matching</span>
-            </a>
+            </a> --}}
 
             <!-- Audio/Video Segmentation -->
             <a href="{{ route('forensic.audio-video') }}" class="nav-link {{ request()->routeIs('forensic.audio-video') ? 'active' : '' }}">
@@ -34,16 +34,16 @@
             </a>
 
             <!-- AI Transcript Verification -->
-            <a href="{{ route('forensic.transcript') }}" class="nav-link {{ request()->routeIs('forensic.transcript') ? 'active' : '' }}">
+            {{-- <a href="{{ route('forensic.transcript') }}" class="nav-link {{ request()->routeIs('forensic.transcript') ? 'active' : '' }}">
                 <i class="bi bi-journal-text"></i>
                 <span class="sidebar-text">Transcript Verification</span>
-            </a>
+            </a> --}}
 
             <!-- AI Summary Approval -->
-            <a href="{{ route('forensic.summary') }}" class="nav-link {{ request()->routeIs('forensic.summary') ? 'active' : '' }}">
+            {{-- <a href="{{ route('forensic.summary') }}" class="nav-link {{ request()->routeIs('forensic.summary') ? 'active' : '' }}">
                 <i class="bi bi-card-checklist"></i>
                 <span class="sidebar-text">Summary Approval</span>
-            </a>
+            </a> --}}
 
             <!-- Finalize Forensic Report -->
             <a href="{{ route('forensic.finalize') }}" class="nav-link {{ request()->routeIs('forensic.finalize') ? 'active' : '' }}">

@@ -24,6 +24,7 @@ class Complaint extends Model
         'status',
         'is_visible_to_user',
         'assigned_to',
+        'embedding'
     ];
 
     // ✅ Add this relationship for transcriptions

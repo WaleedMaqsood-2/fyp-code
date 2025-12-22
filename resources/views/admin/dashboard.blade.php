@@ -1,5 +1,5 @@
 @extends('layouts.master')
-
+<link rel="stylesheet" href="{{ asset('css/admin/dashboard.css') }}">
 @section('title', 'Admin Dashboard')
 
 @php
@@ -22,88 +22,57 @@
         {{ session('success') }}
     </div>
 @endif
-
+  <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="header-left">
+            <h1 class="dashboard-title">Admin Dashboard</h1>
+            <p class="dashboard-subtitle">Welcome back, {{ auth()->user()->name ?? 'Admin' }}</p>
+        </div>
+        <div class="header-right">
+            <div class="date-display">
+                <i class="fas fa-calendar-alt me-2"></i>
+                {{ now()->format('l, F j, Y') }}
+            </div>
+        </div>
+    </div>
     
        <div class="row">
-        <div class="col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <div class="icon-big text-center">
-                                <i class="fas fa-users text-primary"></i>
-                            </div>
-                        </div>
-                        <div class="col-7 col-stats">
-                            <div class="numbers">
-                                <p class="card-category">Total Users</p>
-                                <h4 class="card-title">{{ $totalUsers ?? 0 }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+       <!-- Stats Cards -->
+    <div class="stats-grid ">
+        <div class="stat-card primary-gradient">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Users</p>
+                <h3 class="stat-number">{{ $totalUsers ?? 0 }}</h3>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <div class="icon-big text-center">
-                                <i class="fas fa-images text-info"></i>
-                            </div>
-                        </div>
-                        <div class="col-7 col-stats">
-                            <div class="numbers">
-                                <p class="card-category">Media Files</p>
-                                <h4 class="card-title">{{ $totalMedia ?? 0 }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card info-gradient">
+            <div class="stat-icon">
+                <i class="fas fa-images"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Media Files</p>
+                <h3 class="stat-number">{{ $totalMedia ?? 0 }}</h3>
+               
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <div class="icon-big text-center">
-                                <i class="fas fa-file-alt text-warning"></i>
-                            </div>
-                        </div>
-                        <div class="col-7 col-stats">
-                            <div class="numbers">
-                                <p class="card-category">Pending Summaries</p>
-                                <h4 class="card-title">{{ $pendingSummaries ?? 0 }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card warning-gradient">
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Complaints</p>
+                <h3 class="stat-number">{{ $totalComplaints ?? 0 }}</h3>
+              
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <div class="icon-big text-center">
-                                <i class="fas fa-robot text-success"></i>
-                            </div>
-                        </div>
-                        <div class="col-7 col-stats">
-                            <div class="numbers">
-                                <p class="card-category">AI Usage</p>
-                                <h4 class="card-title">{{ $aiUsage ?? 0 }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
+    </div>
     </div>
 {{-- row --}}
 
@@ -133,7 +102,7 @@
 
         </div>
 
-        <div class="col-md-6">
+        {{-- <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">AI Usage Breakdown</h4>
@@ -142,98 +111,91 @@
                     <canvas id="aiUsageChart"></canvas>
                 </div>
             </div>
+        </div> --}}
+        <div class="col-md-6">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">Complaints Breakdown</h4>
         </div>
-    </div>{{-- row --}}
-
-  <!-- RECENT ACTIVITY -->
-<div class="row">
-    <div class="col-lg-12 mx-auto">
-        <div class="card shadow-sm border-0 rounded-4">
-            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0 text-primary fw-bold">
-                    <i class="bi bi-activity me-2"></i> Recent Activities
-                </h4>
-            </div>
-            <div class="card-body p-4">
-
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">Action</th>
-                                <th scope="col">User</th>
-                                <th scope="col">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($recentActivities ?? [] as $activity)
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill">
-                                            {{ $activity->action }}
-                                        </span>
-                                    </td>
-                    <td>
-    <div class="d-flex align-items-center">
-        @if(!empty($activity->user->profile_image))
-            {{-- Profile Image from storage --}}
-            <img src="{{ asset('storage/' . $activity->user->profile_image) }}" 
-                 alt="Profile" 
-                 class="rounded-circle me-2" 
-                 style="width:35px; height:35px; object-fit:cover;">
-        @else
-            {{-- Default avatar (first letter) --}}
-            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-2" 
-                 style="width:35px; height:35px;">
-                {{ strtoupper(substr($activity->user->name ?? 'N/A', 0, 1)) }}
-            </div>
-        @endif
-
-        <span class="fw-semibold">{{ $activity->user->name ?? 'N/A' }}</span>
-    </div>
-</td>
-
-                                    <td class="text-muted">
-                                        <i class="bi bi-clock me-1"></i>
-                                        {{ $activity->created_at->format('d M Y H:i') }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted py-4">
-                                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                                        No recent activity
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Pagination / Show All / Hide --}}
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    @if($showAll)
-                        <div class="ms-auto">
-                            {{-- Hide button --}}
-                            <a href="{{ request()->url() }}" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
-                                <i class="bi bi-eye-slash me-1"></i> Hide
-                            </a>
-                        </div>
-                    @else
-                        <div>
-                            {{ $recentActivities->links() }}
-                        </div>
-                        <a href="{{ request()->fullUrlWithQuery(['show' => 'all']) }}" 
-                           class="btn btn-outline-primary btn-sm rounded-pill px-4">
-                            <i class="bi bi-eye me-1"></i> Show All
-                        </a>
-                    @endif
-                </div>
-
-            </div>
+        <div class="card-body">
+            <canvas id="complaintsChart"></canvas>
         </div>
     </div>
 </div>
+
+    </div>{{-- row --}}
+
+  <!-- RECENT ACTIVITY -->
+   <!-- Recent Activities -->
+    <div class="activities-section">
+        <div class="section-header">
+            <h3>
+                <i class="fas fa-history me-2"></i>
+                Recent Activities
+            </h3>
+           
+        </div>
+        
+        <div class="activities-list">
+            @forelse($recentActivities ?? [] as $activity)
+            <div class="activity-item">
+                <div class="activity-icon">
+                    @if(str_contains(strtolower($activity->action), 'login'))
+                        <i class="fas fa-sign-in-alt"></i>
+                    @elseif(str_contains(strtolower($activity->action), 'create'))
+                        <i class="fas fa-plus-circle"></i>
+                    @elseif(str_contains(strtolower($activity->action), 'update'))
+                        <i class="fas fa-edit"></i>
+                    @elseif(str_contains(strtolower($activity->action), 'delete'))
+                        <i class="fas fa-trash"></i>
+                    @else
+                        <i class="fas fa-circle"></i>
+                    @endif
+                </div>
+                <div class="activity-content">
+                    <div class="activity-action">
+                        {{ $activity->action }}
+                    </div>
+                    <div class="activity-user">
+                        @if(!empty($activity->user->profile_image))
+                            <img src="{{ asset('storage/' . $activity->user->profile_image) }}" 
+                                 alt="Profile" 
+                                 class="user-avatar">
+                        @else
+                            <div class="user-avatar default">
+                                {{ strtoupper(substr($activity->user->name ?? 'N', 0, 1)) }}
+                            </div>
+                        @endif
+                        <span class="user-name">{{ $activity->user->name ?? 'N/A' }}</span>
+                    </div>
+                </div>
+                <div class="activity-time">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ $activity->created_at->format('d M Y H:i') }}
+                </div>
+            </div>
+            @empty
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h4>No recent activity</h4>
+                <p>Activities will appear here as they happen</p>
+            </div>
+            @endforelse
+        </div>
+         <div class="section-actions">
+                @if($showAll)
+                    <a href="{{ request()->url() }}" class="btn btn-outline">
+                        <i class="fas fa-eye-slash me-1"></i> Hide
+                    </a>
+                @else
+                    {{ $recentActivities->links() }}
+                    <a href="{{ request()->fullUrlWithQuery(['show' => 'all']) }}" 
+                       class="btn btn-primary">
+                        <i class="fas fa-eye me-1"></i> Show All
+                    </a>
+                @endif
+            </div>
+    </div>
 
 
 </div>{{-- page-inner --}}
@@ -241,7 +203,7 @@
 
 @endsection
 @endcan
-@section('scripts')
+{{-- @section('scripts')
 <script>
     // Users chart
    const months = @json($months);
@@ -262,6 +224,7 @@
         }
     });
     // AI usage chart
+   /*
     new Chart(document.getElementById("aiUsageChart"), {
         type: 'pie',
         data: {
@@ -272,8 +235,158 @@
             }]
         }
     });
+    */
+   // Complaints Breakdown Chart
+new Chart(document.getElementById("complaintsChart"), {
+    type: 'pie',
+    data: {
+        labels: ["Resolved", "In-Progress", "Pending", "Rejected"],
+        datasets: [{
+            data: [40, 25, 20, 15], 
+            backgroundColor: ["#177dff", "#f3545d", "#ffa534", "#1dd1a1"]
+        }]
+    }
+});
+
+</script>
+@endsection --}}
+
+
+
+@section('scripts')
+<script>
+    // Users chart
+    const months = @json($months);
+    const userCounts = @json($userCounts);
+
+    const usersCtx = document.getElementById('usersChart').getContext('2d');
+    new Chart(usersCtx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: "New Users",
+                data: userCounts,
+                borderColor: "#667eea",
+                backgroundColor: "rgba(102, 126, 234, 0.1)",
+                borderWidth: 3,
+                pointBackgroundColor: "#667eea",
+                pointBorderColor: "#fff",
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 14
+                    },
+                    padding: 12,
+                    cornerRadius: 6
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Complaints Breakdown Chart
+    const complaintsCtx = document.getElementById('complaintsChart').getContext('2d');
+    new Chart(complaintsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ["Resolved", "In-Progress", "Pending", "Rejected"],
+            datasets: [{
+                data: [40, 25, 20, 15],
+                backgroundColor: [
+                    "#667eea",
+                    "#f3545d",
+                    "#ffa534",
+                    "#1dd1a1"
+                ],
+                borderWidth: 0,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 13
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                }
+            }
+        }
+    });
+
+    // Alert close functionality
+    document.querySelectorAll('.alert-close').forEach(button => {
+        button.addEventListener('click', function() {
+            this.closest('.alert-modern').style.opacity = '0';
+            setTimeout(() => {
+                this.closest('.alert-modern').style.display = 'none';
+            }, 300);
+        });
+    });
+
+    // Auto-hide success alerts after 5 seconds
+    @if(session('success'))
+    setTimeout(() => {
+        const successAlert = document.querySelector('.alert-success');
+        if (successAlert) {
+            successAlert.style.opacity = '0';
+            setTimeout(() => {
+                successAlert.style.display = 'none';
+            }, 300);
+        }
+    }, 5000);
+    @endif
 </script>
 @endsection
+
 
 
 

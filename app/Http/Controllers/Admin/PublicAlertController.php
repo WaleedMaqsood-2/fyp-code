@@ -83,7 +83,7 @@ class PublicAlertController extends Controller
             $request->title,
             $request->message,
             'warning',
-            route('public.alerts.all')
+            route('public.alerts')
         );
         
         NotificationHelper::createForUser(
@@ -162,7 +162,7 @@ class PublicAlertController extends Controller
                 "Updated: " . $request->title,
                 $request->message,
                 'info',
-                route('public.alerts.all')
+                route('public.alerts')
             );
             
             NotificationHelper::createForUser(

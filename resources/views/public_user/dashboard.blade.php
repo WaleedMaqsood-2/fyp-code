@@ -6,6 +6,7 @@
 @endpush
 @section('title', 'User Dashboard')
 
+  
 @php
     if (!auth()->check()) {
         header('Location: ' . route('login'));

@@ -1,50 +1,94 @@
 <tr>
   <!-- File Name -->
+ 
   <td>
-    <div class="d-flex align-items-center gap-0" style="font-size: 12px">
-        @if($file->file_type == 'image')
-        <span class="material-symbols-outlined text-muted">image</span>
-        @elseif($file->file_type == 'video')
-        <span class="material-symbols-outlined text-muted">videocam</span>
-        @else
-        <span class="material-symbols-outlined text-muted">description</span>
-        @endif
-        {{ \Illuminate\Support\Str::limit(basename($file->file_path), 5) }}
-    </div>
+      @php
+                                        $extension = strtolower(pathinfo($file->file_path, PATHINFO_EXTENSION));
+                                        $fileType = 'document';
+                                        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                                            $fileType = 'image';
+                                        } elseif (in_array($extension, ['mp4', 'avi', 'mov', 'wmv'])) {
+                                            $fileType = 'video';
+                                        } elseif (in_array($extension, ['mp3', 'wav', 'aac'])) {
+                                            $fileType = 'audio';
+                                        } elseif ($extension === 'pdf') {
+                                            $fileType = 'pdf';
+                                        }
+                                    @endphp
+    <div class="file-info">
+                                    
+                                    <div class="file-type {{ $fileType }}">
+                                        @if($fileType === 'image')
+                                        <i class="fas fa-image"></i>
+                                        @elseif($fileType === 'video')
+                                        <i class="fas fa-video"></i>
+                                        @elseif($fileType === 'audio')
+                                        <i class="fas fa-music"></i>
+                                        @elseif($fileType === 'pdf')
+                                        <i class="fas fa-file-pdf"></i>
+                                        @else
+                                        <i class="fas fa-file-alt"></i>
+                                        @endif
+                                    </div>
+                                    <div></div>
+                                     <span class="file-name"> {{ \Illuminate\Support\Str::limit(basename($file->file_path), 5) }}
+  </span>
+                                        
+   
   </td>
 
   <!-- File Type -->
-  <td><span class="meta-small">{{ ucfirst($file->file_type) }}</span></td>
-
+   <td>
+                                <span class="badge bg-light text-dark">
+                                    {{ strtoupper($extension) }}
+                                </span>
+                            </td>
+  
   <!-- Complaint Track ID -->
-  <td><span class="meta-small">{{ $file->complaint->track_id ?? 'N/A' }}</span></td>
-
+   <td>
+                                @if($file->complaint)
+                                <span class="badge bg-info ">
+                                    {{ $file->complaint->track_id ?? 'N/A' }}
+                                </span>
+                                @else
+                                <span class="text-muted">No case</span>
+                                @endif
+                            </td>
+  
   <!-- Created Date -->
-  <td><span class="meta-small">{{ $file->created_at->format('d M') }}</span></td>
-
+    <td>
+                                <span class="text-muted meta-small">
+                                    {{ $file->created_at->format('d M') }}
+                                </span>
+                            </td>
+ 
   <!-- Status -->
   <td>
     @if($file->status == 'approved')
-      <span class="badge-processed">Approved</span>
+      
+      <span class="badge-processed d-flex"><i class="fas fa-check-circle me-1"></i>Approved</span>
     @elseif($file->status == 'pending')
-      <span class="badge-pending">Pending</span>
+    
+      <span class="badge-pending d-flex"><i class="fas fa-clock me-1"></i>Pending</span>
     @elseif ($file->status == 'rejected')
-      <span class="badge bg-danger">Rejected</span>
+    
+  
+      <span class="badge bg-danger d-flex"><i class="fas fa-times-circle me-1"></i>Rejected</span>
     @else
       <span class="badge bg-secondary">{{ ucfirst($file->status) }}</span>
     @endif
   </td>
 
-  <!-- Actions Dropdown -->
+                     <!-- Actions Dropdown -->
   <td>
-    <div class="dropdown">
-      <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" 
+    <div class="dropdown ">
+      <button class="btn btn-sm btn-outline-secondary  preview preview-btn dropdown-toggle d-flex align-items-center gap-1" 
               type="button" id="dropdownMenuButton{{ $file->id }}" 
               data-bs-toggle="dropdown" aria-expanded="false">
           <i class="bi bi-gear"></i> Action
       </button>
 
-      <ul class="dropdown-menu shadow border-0 rounded-3 p-2" aria-labelledby="dropdownMenuButton{{ $file->id }}">
+      <ul class="dropdown-menu shadow border-0 rounded-3 p-2 " aria-labelledby="dropdownMenuButton{{ $file->id }}">
           <!-- Preview -->
           <li>
               <button type="button" 
@@ -83,3 +127,6 @@
     </div>
   </td>
 </tr>
+
+
+ 

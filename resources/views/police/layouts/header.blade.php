@@ -4,10 +4,10 @@
     <span class="material-symbols-outlined text-primary fs-2">local_police</span>
     <h4 class="mb-0 fw-bold fs-5">Police Dashboard</h4>
 </a>
-    <div class="input-group ms-4 d-none d-md-flex" style="width:200px;">
+    {{-- <div class="input-group ms-4 d-none d-md-flex" style="width:200px;">
       <input type="text" class="form-control border-0 bg-body-secondary" placeholder="Search" />
       <span class="input-group-text bg-body-secondary border-0"><span class="material-symbols-outlined">search</span></span>
-    </div>
+    </div> --}}
   </div>
 
   <div class="d-flex align-items-center gap-3">

@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Models\ComplaintSimilarity;
 
 class AddFIRController extends Controller
 {
@@ -65,27 +68,46 @@ class AddFIRController extends Controller
             'evidence.*' => 'file|mimes:jpg,jpeg,png,gif,webp,mp4,mov,avi,mkv,mp3,wav,aac,pdf,doc,docx,txt,xlsx,pptx,zip,rar|max:10240'
         ]);
 
-        $officerId = Auth::check() ? Auth::id() : null;
-        $audioPath = null;
+     $officerId = Auth::check() ? Auth::id() : null;
+    $audioPath = null;
 
-        if ($request->hasFile('audio_file')) {
-            $audioPath = $request->file('audio_file')->store('audio_recordings', 'public');
-        }
+    if ($request->hasFile('audio_file')) {
+        $audioPath = $request->file('audio_file')->store('audio_recordings', 'public');
+    }
 
-        // ✅ Save FIR in database
-        $fir = Complaint::create([
-            'user_id' => $officerId,
-            'track_id' => $trackId,
-            'subject' => $request->subject,
-            'incident_type' => $request->incident_type,
-            'severity' => $request->severity ?? 'Medium',
-            'description' => $request->description,
-            'location' => $request->location,
-            'incident_datetime' => $request->incident_datetime ?? now(),
-            'audio_file' => $audioPath,
-            'transcription' => $request->transcribedText ?? null,
-            'status' => 'received',
-        ]);
+ // اپنے کنٹرولر میں یہ لاگز شامل کریں
+Log::info('=== FIR CREATION ATTEMPT ===');
+Log::info('User ID: ' . Auth::id());
+Log::info('Track ID: ' . $trackId);
+Log::info('Description length: ' . strlen($request->description));
+
+
+    $fir = Complaint::create([
+        'user_id' => $officerId,
+        'track_id' => $trackId,
+        'subject' => $request->subject,
+        'incident_type' => $request->incident_type,
+        'severity' => $request->severity ?? 'Medium',
+        'description' => $request->description,
+        'location' => $request->location,
+        'incident_datetime' => $request->incident_datetime ?? now(),
+        'audio_file' => $audioPath,
+        'transcription' => $request->transcribedText ?? null,
+        'status' => 'received',
+    ]);
+    
+// Embedding store
+$desc = preg_replace('/\s+/', ' ', $request->description); // Laravel
+
+$resp = Http::timeout(10)->post(env('SIM_SERVICE_URL', 'http://127.0.0.1:5005') . '/embed', [
+    'text' => $request->description
+]);
+if ($resp->successful()) {
+    $fir->embedding = json_encode($resp->json()['embedding']);
+    $fir->save();
+}
+
+   
 
         // ✅ **NEW: FIR creation notification to officer**
         NotificationHelper::createForUser(
@@ -186,7 +208,62 @@ class AddFIRController extends Controller
             route('admin.complaints.show', $fir->id)
         );
 
-        return redirect()->route('police.add-fir')
-            ->with('success', 'FIR filed successfully! Track ID: ' . $trackId);
+   // Fetch previous complaints with embeddings
+$previous = Complaint::where('id', '!=', $fir->id)
+    ->whereNotNull('embedding')
+    ->where('embedding', '!=', '')
+    ->get(['id', 'description', 'embedding']);
+
+$matches = [];
+if ($previous->count() > 0) {
+    // Prepare candidates for Flask similarity service
+    $candidates = $previous->map(function ($c) {
+        return [
+            'id' => $c->id,
+            'text' => $c->description,
+            'embedding' => json_decode($c->embedding)
+        ];
+    })->toArray();
+
+    try {
+        $response = Http::timeout(15)->post('http://127.0.0.1:5005/similarity', [
+            'text' => $request->description,
+            'candidates' => $candidates,
+            'top_k' => 1,
+            'threshold' => 0.75
+        ]);
+
+        if ($response->successful()) {
+            $matches = $response->json()['matches'] ?? [];
+        }
+    } catch (\Exception $e) {
+        Log::error('AI Similarity Error: ' . $e->getMessage());
+    }
+}
+
+// Store similarity if above threshold
+$topMatch = null;
+if (!empty($matches)) {
+    $topMatch = $matches[0];
+    if ($topMatch['similarity'] >= 75) {
+        ComplaintSimilarity::create([
+            'complaint_id' => $fir->id,
+            'has_similar' => true,
+            'similar_complaint_id' => $topMatch['id'],
+            'similarity_score' => $topMatch['similarity'],
+            'matched_text' => substr($topMatch['text'], 0, 200),
+            'checked_at' => now()
+        ]);
+    }
+}
+
+
+
+      return redirect()->route('police.add-fir')
+        ->with([
+            'success' => 'FIR filed successfully! Track ID: ' . $trackId,
+            'match_result' => $topMatch,
+            'fir_id' => $fir->id // Return FIR ID for reference
+        ]);
     }
 }
